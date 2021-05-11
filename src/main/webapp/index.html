@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dice</title>
+</head>
+<body>
+<a href="trang-chu">Home</a>
+<div class="box">
+    <div class="content">
+        <div class="no1" id="s1">1</div>
+        <div class="no2" id="s2">2</div>
+        <div class="no3" id="s3">3</div>
+        <div class="no4" id="s4">4</div>
+        <div class="no5" id="s5">5</div>
+        <div class="no6" id="s6">6</div>
+    </div>
+</div>
+<div class="bt">
+    <button data-ma="s1">Show 1</button>
+    <button data-ma="s2">Show 2</button>
+    <button data-ma="s3">Show 3</button>
+    <button data-ma="s4">Show 4</button>
+    <button data-ma="s5">Show 5</button>
+    <button data-ma="s6">Show 6</button>
+</div>
+
+<style>
+    .box {
+        margin: auto;
+        height: 200px;
+        width: 200px;
+        perspective: 1500px;
+        margin-top: 100px;
+    }
+
+    .box .content {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: 0.4s;
+    }
+
+    .box .content div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgb(3, 3, 3, 0.8);
+        color: #fff;
+        font-weight: bold;
+        font-size: 50px;
+        line-height: 200px;
+        text-align: center;
+        margin: auto;
+        /* transform-origin: 50% 50%; */
+    }
+
+    .box .content div.no1 {
+        transform: translateZ(100px);
+    }
+
+    .box .content div.no2 {
+        /* transform-origin: 0 0; */
+        transform: rotateY(90deg) translateZ(100px);
+        background-color: rgb(36, 36, 238, 0.8);
+    }
+
+    .box .content div.no3 {
+        /* transform-origin: 0 100%; */
+        transform: rotateX(90deg) translateZ(100px);
+        background-color: rgb(146, 29, 255, 0.8);
+    }
+
+    .box .content div.no4 {
+        transform: translateZ(-100px) rotateY(180deg);
+        /* transform-origin: 50% 50%; */
+        background-color: rgb(255, 43, 43, 0.8);
+
+    }
+
+    .box .content div.no5 {
+        /* transform-origin: 0 0; */
+        transform: rotateX(-90deg) translateZ(100px);
+        background-color: rgb(7, 184, 7, 0.8);
+    }
+
+    .box .content div.no6 {
+        /* transform-origin: 100% 0; */
+        transform: rotateY(-90deg) translateZ(100px);
+        background-color: rgb(185, 185, 185, 0.8);
+    }
+
+    div.bt {
+        width: 400px;
+        margin: auto;
+        margin-top: 40px;
+    }
+
+    .quay1 {
+    }
+
+    .quay2 {
+        transform: rotateY(-90deg);
+    }
+
+    .quay3 {
+        transform: rotateX(-90deg);
+    }
+
+    .quay4 {
+        transform: rotateY(180deg);
+    }
+
+    .quay5 {
+        transform: rotateX(90deg);
+    }
+
+    .quay6 {
+        transform: rotateY(90deg);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var nut = document.getElementsByTagName("button");
+        var td = document.querySelectorAll(".content");
+
+        for (var i = 0; i < nut.length; i++) {
+            nut[i].onclick = function () {
+                var bien = this.getAttribute("data-ma");
+                var show = document.getElementById(bien);
+
+                td[0].classList.remove("quay1");
+                td[0].classList.remove("quay2");
+                td[0].classList.remove("quay3");
+                td[0].classList.remove("quay4");
+                td[0].classList.remove("quay5");
+                td[0].classList.remove("quay6");
+
+                if (show.classList[0] == "no1") {
+                    td[0].classList.add("quay1");
+                } else if (show.classList[0] == "no2") {
+                    td[0].classList.add("quay2");
+                } else if (show.classList[0] == "no3") {
+                    td[0].classList.add("quay3");
+                } else if (show.classList[0] == "no4") {
+                    td[0].classList.add("quay4");
+                } else if (show.classList[0] == "no5") {
+                    td[0].classList.add("quay5");
+                } else if (show.classList[0] == "no6") {
+                    td[0].classList.add("quay6");
+                }
+            }
+        }
+    }, false)
+</script>
+</body>
+</html>
