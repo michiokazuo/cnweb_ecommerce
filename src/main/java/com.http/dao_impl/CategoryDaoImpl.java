@@ -1,7 +1,7 @@
 package com.http.dao_impl;
 
 import com.http.dao.CategoryDao;
-import com.http.dto.CategoryDTO;
+import com.http.model.Category;
 import com.http.model.MyConnection;
 
 import java.sql.ResultSet;
@@ -13,37 +13,37 @@ public class CategoryDaoImpl implements CategoryDao {
     private final MyConnection connection = new MyConnection();
 
     @Override
-    public CategoryDTO getObject(ResultSet resultSet) throws SQLException {
+    public Category getObject(ResultSet resultSet) throws SQLException {
         return null;
     }
 
     @Override
-    public List<CategoryDTO> getList(ResultSet resultSet) throws SQLException {
+    public List<Category> getList(ResultSet resultSet) throws SQLException {
         return null;
     }
 
     @Override
-    public List<CategoryDTO> findAll() throws SQLException {
+    public List<Category> findAll() throws SQLException {
         return null;
     }
 
     @Override
-    public CategoryDTO findById(int id) throws SQLException {
+    public Category findById(int id) throws SQLException {
         return null;
     }
 
     @Override
-    public CategoryDTO insert(CategoryDTO categoryDTO) throws SQLException {
+    public Category insert(Category category) throws SQLException {
         return null;
     }
 
     @Override
-    public List<CategoryDTO> search(CategoryDTO categoryDTO) throws SQLException {
+    public List<Category> search(Category category) throws SQLException {
         return null;
     }
 
     @Override
-    public CategoryDTO update(CategoryDTO categoryDTO) throws SQLException {
+    public Category update(Category category) throws SQLException {
         return null;
     }
 

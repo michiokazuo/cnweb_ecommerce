@@ -1,7 +1,7 @@
 package com.http.dao_impl;
 
 import com.http.dao.BillHasProductDao;
-import com.http.dto.ItemDTO;
+import com.http.model.BillHasProduct;
 import com.http.model.MyConnection;
 
 import java.sql.ResultSet;
@@ -13,37 +13,37 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
     private final MyConnection connection = new MyConnection();
 
     @Override
-    public ItemDTO getObject(ResultSet resultSet) throws SQLException {
+    public BillHasProduct getObject(ResultSet resultSet) throws SQLException {
         return null;
     }
 
     @Override
-    public List<ItemDTO> getList(ResultSet resultSet) throws SQLException {
+    public List<BillHasProduct> getList(ResultSet resultSet) throws SQLException {
         return null;
     }
 
     @Override
-    public List<ItemDTO> findAll() throws SQLException {
+    public List<BillHasProduct> findAll() throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO findById(int id) throws SQLException {
+    public BillHasProduct findById(int id) throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO insert(ItemDTO itemDTO) throws SQLException {
+    public BillHasProduct insert(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 
     @Override
-    public List<ItemDTO> search(ItemDTO itemDTO) throws SQLException {
+    public List<BillHasProduct> search(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO update(ItemDTO itemDTO) throws SQLException {
+    public BillHasProduct update(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 
