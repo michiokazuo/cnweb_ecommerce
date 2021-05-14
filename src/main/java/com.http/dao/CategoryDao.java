@@ -1,6 +1,6 @@
 package com.http.dao;
 
-import com.http.dto.CategoryDTO;
+import com.http.model.Category;
 
-public interface CategoryDao extends BaseDao<CategoryDTO> {
+public interface CategoryDao extends BaseDao<Category> {
 }

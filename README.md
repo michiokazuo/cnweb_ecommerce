@@ -2,7 +2,7 @@
 
 ## Java JDK8
 
-## Datababse: Mysql
+## Database: Mysql
     * Version: 8.0.20
     * Các idol nhớ chỉnh uername & password trong common/Appconfig
 

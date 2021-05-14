@@ -1,6 +1,6 @@
 package com.http.dao;
 
-import com.http.dto.BillDTO;
+import com.http.model.Bill;
 
-public interface BillDao extends BaseDao<BillDTO> {
+public interface BillDao extends BaseDao<Bill> {
 }

@@ -1,6 +1,6 @@
 package com.http.dao;
 
-import com.http.dto.CommentDTO;
+import com.http.model.Comment;
 
-public interface CommentDao extends BaseDao<CommentDTO> {
+public interface CommentDao extends BaseDao<Comment> {
 }

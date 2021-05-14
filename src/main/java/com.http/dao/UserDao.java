@@ -1,6 +1,6 @@
 package com.http.dao;
 
-import com.http.dto.UserDTO;
+import com.http.model.User;
 
-public interface UserDao extends BaseDao<UserDTO> {
+public interface UserDao extends BaseDao<User> {
 }
