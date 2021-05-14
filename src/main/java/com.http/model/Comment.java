@@ -6,8 +6,6 @@ public class Comment extends Base{
 
     private Integer id;
 
-    private String name;
-
     private String comment;
 
     private Double rate;
@@ -20,11 +18,10 @@ public class Comment extends Base{
         super();
     }
 
-    public Comment(Integer id, String name, String comment, Double rate, Integer productId, Integer userId,
+    public Comment(Integer id, String comment, Double rate, Integer productId, Integer userId,
                    Boolean deleted, Date modifyDate, Date createDate, String createBy, String modifyBy) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
-        this.name = name;
         this.comment = comment;
         this.rate = rate;
         this.productId = productId;
@@ -37,14 +34,6 @@ public class Comment extends Base{
 
     public Integer getId() {
         return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setComment(String comment) {
@@ -83,7 +72,6 @@ public class Comment extends Base{
     public String toString() {
         return "Comment{" +
                 "id=" + id + '\'' +
-                "name=" + name + '\'' +
                 "comment=" + comment + '\'' +
                 "rate=" + rate + '\'' +
                 "productId=" + productId + '\'' +

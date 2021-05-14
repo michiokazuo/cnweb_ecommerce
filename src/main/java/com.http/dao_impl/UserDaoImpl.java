@@ -3,6 +3,7 @@ package com.http.dao_impl;
 import com.http.dao.UserDao;
 import com.http.model.MyConnection;
 import com.http.model.User;
+import com.http.payload.LoginForm;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -50,6 +51,7 @@ public class UserDaoImpl implements UserDao {
         String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
+
         ResultSet resultSet = preparedStatement.executeQuery();
 
         return getList(resultSet);
@@ -62,8 +64,8 @@ public class UserDaoImpl implements UserDao {
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
 
+        ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.first()) {
             user = getObject(resultSet);
         }
@@ -75,7 +77,7 @@ public class UserDaoImpl implements UserDao {
     public User insert(User user) throws SQLException {
         User new_user = null;
         String sql = "INSERT INTO " + NAME_USER + " (email, password, name, phone, role, avatar, deleted, job, gender"
-                + ", home_town, workplace, birthday, modify_date, create_date, create_by, modifyB_by)"
+                + ", home_town, workplace, birthday, modify_date, create_date, create_by, modify_by)"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
@@ -91,8 +93,8 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setString(10, user.getHomeTown());
         preparedStatement.setString(11, user.getWorkplace());
         preparedStatement.setDate(12, new Date(user.getBirthday().getTime()));
-        preparedStatement.setDate(13, new Date(user.getCreateDate().getTime()));
-        preparedStatement.setDate(14, new Date(user.getModifyDate().getTime()));
+        preparedStatement.setDate(13, new Date(user.getModifyDate().getTime()));
+        preparedStatement.setDate(14, new Date(user.getCreateDate().getTime()));
         preparedStatement.setString(15, user.getCreateBy());
         preparedStatement.setString(16, user.getModifyBy());
 
@@ -103,6 +105,7 @@ public class UserDaoImpl implements UserDao {
                 new_user = findById((int) resultSet.getLong(1));
             }
         }
+
         return new_user;
     }
 
@@ -115,8 +118,8 @@ public class UserDaoImpl implements UserDao {
     public User update(User user) throws SQLException {
         User update_user = null;
         String sql = "UPDATE " + NAME_USER + " SET email = ?, password = ?, name = ?, phone = ?, role = ?, avatar = ?" +
-                ", deleted = ?, job = ?, gender = ?, home_town = ?, workplace = ?, birthday = ?, modify_date = ?" +
-                ", create_date = ?, create_by = ?, modifyB_by = ? WHERE id = ?";
+                ", job = ?, gender = ?, home_town = ?, workplace = ?, birthday = ?, modify_date = ?" +
+                ", modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, user.getEmail());
@@ -125,25 +128,20 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setString(4, user.getPhone());
         preparedStatement.setInt(5, user.getRole());
         preparedStatement.setString(6, user.getAvatar());
-        preparedStatement.setBoolean(7, user.getDeleted());
-        preparedStatement.setString(8, user.getJob());
-        preparedStatement.setString(9, user.getGender());
-        preparedStatement.setString(10, user.getHomeTown());
-        preparedStatement.setString(11, user.getWorkplace());
-        preparedStatement.setDate(12, new Date(user.getBirthday().getTime()));
-        preparedStatement.setDate(13, new Date(user.getCreateDate().getTime()));
-        preparedStatement.setDate(14, new Date(user.getModifyDate().getTime()));
-        preparedStatement.setString(15, user.getCreateBy());
-        preparedStatement.setString(16, user.getModifyBy());
-        preparedStatement.setInt(17, user.getId());
+        preparedStatement.setString(7, user.getJob());
+        preparedStatement.setString(8, user.getGender());
+        preparedStatement.setString(9, user.getHomeTown());
+        preparedStatement.setString(10, user.getWorkplace());
+        preparedStatement.setDate(11, new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(12, new Date(user.getModifyDate().getTime()));
+        preparedStatement.setString(13, user.getModifyBy());
+        preparedStatement.setInt(14, user.getId());
 
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.first()) {
-                update_user = findById((int) resultSet.getLong(1));
-            }
+            update_user = findById(user.getId());
         }
+
         return update_user;
     }
 
@@ -157,5 +155,48 @@ public class UserDaoImpl implements UserDao {
         int delete = preparedStatement.executeUpdate();
 
         return delete >= 0;
+    }
+
+    @Override
+    public User getUserByEmailAndPassword(LoginForm loginForm) throws SQLException {
+        User user = null;
+        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? AND password = ?";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setString(1, loginForm.getEmail());
+        preparedStatement.setString(2, loginForm.getPassword());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.first()) {
+            user = getObject(resultSet);
+        }
+
+        return user;
+    }
+
+    @Override
+    public boolean existsByEmailOrPhone(String email, String phone) throws SQLException {
+        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? OR phone = ?";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setString(1, email);
+        preparedStatement.setString(2, phone);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return resultSet.first();
+    }
+
+    @Override
+    public List<User> getListByEmailOrPhone(String email, String phone) throws SQLException {
+        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? OR phone = ?";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setString(1, email);
+        preparedStatement.setString(2, phone);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return getList(resultSet);
     }
 }
