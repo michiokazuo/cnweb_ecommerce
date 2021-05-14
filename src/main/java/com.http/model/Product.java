@@ -2,7 +2,7 @@ package com.http.model;
 
 import java.util.Date;
 
-public class Product {
+public class Product extends Base {
 
     private Integer id;
 
@@ -11,8 +11,6 @@ public class Product {
     private Double price;
 
     private Integer discount;
-
-    private Boolean deleted;
 
     private String image;
 
@@ -42,17 +40,10 @@ public class Product {
 
     private Integer bought;
 
-    private Date modifyDate;
-
-    private Date createDate;
-
-    private String createBy;
-
-    private String modifyBy;
-
     private String others;
 
     public Product() {
+        super();
     }
 
     public Product(Integer id, String name, Double price, Integer discount, Boolean deleted, String image,
@@ -60,11 +51,11 @@ public class Product {
                    Double battery, Double weight, String operatingSystem, Boolean soldOut, Integer guarantee,
                    Integer categoryId, Integer bought, Date modifyDate, Date createDate, String createBy,
                    String modifyBy, String others) {
+        super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
         this.name = name;
         this.price = price;
         this.discount = discount;
-        this.deleted = deleted;
         this.image = image;
         this.introduction = introduction;
         this.CPU = CPU;
@@ -79,10 +70,6 @@ public class Product {
         this.guarantee = guarantee;
         this.categoryId = categoryId;
         this.bought = bought;
-        this.modifyDate = modifyDate;
-        this.createDate = createDate;
-        this.createBy = createBy;
-        this.modifyBy = modifyBy;
         this.others = others;
     }
 
@@ -116,14 +103,6 @@ public class Product {
 
     public Integer getDiscount() {
         return discount;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public Boolean isDeleted() {
-        return deleted;
     }
 
     public void setImage(String image) {
@@ -238,38 +217,6 @@ public class Product {
         return bought;
     }
 
-    public void setModifyDate(Date modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Date getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setModifyBy(String modifyBy) {
-        this.modifyBy = modifyBy;
-    }
-
-    public String getModifyBy() {
-        return modifyBy;
-    }
-
     public void setOthers(String others) {
         this.others = others;
     }
@@ -285,7 +232,6 @@ public class Product {
                 "name=" + name + '\'' +
                 "price=" + price + '\'' +
                 "discount=" + discount + '\'' +
-                "deleted=" + deleted + '\'' +
                 "image=" + image + '\'' +
                 "introduction=" + introduction + '\'' +
                 "CPU=" + CPU + '\'' +
@@ -300,10 +246,11 @@ public class Product {
                 "guarantee=" + guarantee + '\'' +
                 "categoryId=" + categoryId + '\'' +
                 "bought=" + bought + '\'' +
-                "modifyDate=" + modifyDate + '\'' +
-                "createDate=" + createDate + '\'' +
-                "createBy=" + createBy + '\'' +
-                "modifyBy=" + modifyBy + '\'' +
+                "deleted=" + getDeleted() + '\'' +
+                "modifyDate=" + getModifyDate() + '\'' +
+                "createDate=" + getCreateDate() + '\'' +
+                "createBy=" + getCreateBy() + '\'' +
+                "modifyBy=" + getModifyBy() + '\'' +
                 "others=" + others + '\'' +
                 '}';
     }

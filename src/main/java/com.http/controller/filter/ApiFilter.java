@@ -10,11 +10,14 @@ import java.io.IOException;
 public class ApiFilter implements Filter {
     private final MyConnection myConnection = new MyConnection();
 
-    public void destroy() {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
     }
 
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
-        resp.setContentType("application/json;charset=UTF-8");
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        response.setContentType("application/json;charset=UTF-8");
 
         try {
             myConnection.connectDB();
@@ -22,10 +25,11 @@ public class ApiFilter implements Filter {
             e.printStackTrace();
         }
 
-        chain.doFilter(req, resp);
+        chain.doFilter(request, response);
     }
 
-    public void init(FilterConfig config) throws ServletException {
+    @Override
+    public void destroy() {
 
     }
 

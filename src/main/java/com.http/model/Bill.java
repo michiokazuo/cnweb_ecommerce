@@ -2,7 +2,7 @@ package com.http.model;
 
 import java.util.Date;
 
-public class Bill {
+public class Bill extends Base {
 
     private Integer id;
 
@@ -12,30 +12,17 @@ public class Bill {
 
     private Integer status;
 
-    private Boolean deleted;
-
-    private Date modifyDate;
-
-    private Date createDate;
-
-    private String createBy;
-
-    private String modifyBy;
-
     public Bill() {
+        super();
     }
 
     public Bill(Integer id, Integer idUser, String address, Integer status, Boolean deleted, Date modifyDate,
                 Date createDate, String createBy, String modifyBy) {
+        super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
         this.idUser = idUser;
         this.address = address;
         this.status = status;
-        this.deleted = deleted;
-        this.modifyDate = modifyDate;
-        this.createDate = createDate;
-        this.createBy = createBy;
-        this.modifyBy = modifyBy;
     }
 
     public void setId(Integer id) {
@@ -70,46 +57,6 @@ public class Bill {
         return status;
     }
 
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public Boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setModifyDate(Date modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Date getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setModifyBy(String modifyBy) {
-        this.modifyBy = modifyBy;
-    }
-
-    public String getModifyBy() {
-        return modifyBy;
-    }
-
     @Override
     public String toString() {
         return "Bill{" +
@@ -117,11 +64,11 @@ public class Bill {
                 "idUser=" + idUser + '\'' +
                 "address=" + address + '\'' +
                 "status=" + status + '\'' +
-                "deleted=" + deleted + '\'' +
-                "modifyDate=" + modifyDate + '\'' +
-                "createDate=" + createDate + '\'' +
-                "createBy=" + createBy + '\'' +
-                "modifyBy=" + modifyBy + '\'' +
+                "deleted=" + getDeleted() + '\'' +
+                "modifyDate=" + getModifyDate() + '\'' +
+                "createDate=" + getCreateDate() + '\'' +
+                "createBy=" + getCreateBy() + '\'' +
+                "modifyBy=" + getModifyBy() + '\'' +
                 '}';
     }
 }

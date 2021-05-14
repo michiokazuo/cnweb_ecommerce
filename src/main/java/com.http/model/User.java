@@ -2,7 +2,7 @@ package com.http.model;
 
 import java.util.Date;
 
-public class User {
+public class User extends Base {
 
     private Integer id;
 
@@ -18,8 +18,6 @@ public class User {
 
     private String avatar;
 
-    private Boolean deleted;
-
     private String job;
 
     private String gender;
@@ -30,20 +28,14 @@ public class User {
 
     private Date birthday;
 
-    private Date modifyDate;
-
-    private Date createDate;
-
-    private String createBy;
-
-    private String modifyBy;
-
     public User() {
+        super();
     }
 
     public User(Integer id, String email, String password, String name, String phone, Integer role, String avatar,
                 Boolean deleted, String job, String gender, String homeTown, String workplace, Date birthday,
                 Date modifyDate, Date createDate, String createBy, String modifyBy) {
+        super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
         this.email = email;
         this.password = password;
@@ -51,16 +43,11 @@ public class User {
         this.phone = phone;
         this.role = role;
         this.avatar = avatar;
-        this.deleted = deleted;
         this.job = job;
         this.gender = gender;
         this.homeTown = homeTown;
         this.workplace = workplace;
         this.birthday = birthday;
-        this.modifyDate = modifyDate;
-        this.createDate = createDate;
-        this.createBy = createBy;
-        this.modifyBy = modifyBy;
     }
 
     public void setId(Integer id) {
@@ -119,14 +106,6 @@ public class User {
         return avatar;
     }
 
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public Boolean isDeleted() {
-        return deleted;
-    }
-
     public void setJob(String job) {
         this.job = job;
     }
@@ -167,38 +146,6 @@ public class User {
         return birthday;
     }
 
-    public void setModifyDate(Date modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Date getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setModifyBy(String modifyBy) {
-        this.modifyBy = modifyBy;
-    }
-
-    public String getModifyBy() {
-        return modifyBy;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -209,16 +156,16 @@ public class User {
                 "phone=" + phone + '\'' +
                 "role=" + role + '\'' +
                 "avatar=" + avatar + '\'' +
-                "deleted=" + deleted + '\'' +
                 "job=" + job + '\'' +
                 "gender=" + gender + '\'' +
                 "homeTown=" + homeTown + '\'' +
                 "workplace=" + workplace + '\'' +
                 "birthday=" + birthday + '\'' +
-                "modifyDate=" + modifyDate + '\'' +
-                "createDate=" + createDate + '\'' +
-                "createBy=" + createBy + '\'' +
-                "modifyBy=" + modifyBy + '\'' +
+                "deleted=" + getDeleted() + '\'' +
+                "modifyDate=" + getModifyDate() + '\'' +
+                "createDate=" + getCreateDate() + '\'' +
+                "createBy=" + getCreateBy() + '\'' +
+                "modifyBy=" + getModifyBy() + '\'' +
                 '}';
     }
 }
