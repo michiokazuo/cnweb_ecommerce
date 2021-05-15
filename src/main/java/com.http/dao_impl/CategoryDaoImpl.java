@@ -1,5 +1,6 @@
 package com.http.dao_impl;
 
+import com.http.config.AppConfig;
 import com.http.dao.CategoryDao;
 import com.http.model.Category;
 import com.http.model.MyConnection;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDaoImpl implements CategoryDao {
-    public static final String NAME_CATEGORY = "category";
     private final MyConnection connection = new MyConnection();
 
     @Override
@@ -42,7 +42,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public List<Category> findAll() throws SQLException {
-        String sql = "SELECT * FROM " + NAME_CATEGORY + " WHERE deleted = false";
+        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -53,7 +53,7 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category findById(int id) throws SQLException {
         Category category = null;
-        String sql = "SELECT * FROM " + NAME_CATEGORY + " WHERE deleted = false AND id = ?";
+        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false AND id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);
@@ -69,8 +69,8 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category insert(Category category) throws SQLException {
         Category new_category = null;
-        String sql = "INSERT INTO " + NAME_CATEGORY + " (name, deleted, modify_date, create_date, create_by" +
-                ", modify_by) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AppConfig.TABLE_CATEGORY + " (name, deleted, modify_date, create_date, create_by"
+                + ", modify_by) VALUES (?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, category.getName());
@@ -93,13 +93,32 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public List<Category> search(Category category) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false AND ? IS NULL OR name LIKE ?"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_CATEGORY + ".create_date) >= ?)"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_CATEGORY + ".create_date) <= ?) ";
+        ;
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setString(1, category.getName());
+        preparedStatement.setString(2, "%" + category.getName() + "%");
+        preparedStatement.setDate(3, category.getCreateDate() == null ? null
+                : new Date(category.getCreateDate().getTime()));
+        preparedStatement.setDate(4, category.getCreateDate() == null ? null
+                : new Date(category.getCreateDate().getTime()));
+        preparedStatement.setDate(5, category.getCreateDate() == null ? null
+                : new Date(category.getCreateDate().getTime()));
+        preparedStatement.setDate(6, category.getCreateDate() == null ? null
+                : new Date(category.getCreateDate().getTime()));
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return getList(resultSet);
     }
 
     @Override
     public Category update(Category category) throws SQLException {
         Category update_category = null;
-        String sql = "UPDATE " + NAME_CATEGORY + " SET name = ?, modify_date = ?, modify_by = ? WHERE id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_CATEGORY + " SET name = ?, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, category.getName());
@@ -117,7 +136,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + NAME_CATEGORY + " SET deleted = true WHERE id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_CATEGORY + " SET deleted = true WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id);

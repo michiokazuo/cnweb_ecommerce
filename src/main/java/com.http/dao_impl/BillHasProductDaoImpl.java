@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BillHasProductDaoImpl implements BillHasProductDao {
-    public static final String NAME_BILL_HAS_PRODUCT = "bill_has_product";
     private final MyConnection connection = new MyConnection();
 
     @Override
@@ -57,7 +56,7 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public BillHasProduct insert(BillHasProduct billHasProduct) throws SQLException {
-        String sql = "INSERT INTO " + NAME_BILL_HAS_PRODUCT + " VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AppConfig.TABLE_BILL_HAS_PRODUCT + " VALUES(?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, billHasProduct.getBillId());
@@ -99,7 +98,7 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
                 AppConfig.TABLE_BILL_HAS_PRODUCT, "product_id", need_bill_has_product,
                 AppConfig.TABLE_PRODUCT, "id", need_product)
                 + ((need_bill_has_product || need_product) ? " AND " : " WHERE ")
-                + NAME_BILL_HAS_PRODUCT + ".bill_id = ?";
+                + AppConfig.TABLE_BILL_HAS_PRODUCT + ".bill_id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id_bill);

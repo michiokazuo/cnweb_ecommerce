@@ -1,6 +1,6 @@
 package com.http.dto;
 
-import javax.management.relation.Role;
+import com.http.model.Role;
 
 public class UserDTO {
     private Integer id;

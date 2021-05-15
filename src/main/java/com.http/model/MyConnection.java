@@ -27,7 +27,7 @@ public class MyConnection {
         try {
             connection = DriverManager.getConnection(AppConfig.URL_DATABASE, AppConfig.USERNAME, AppConfig.PASSWORD);
             if (connection != null) {
-                System.out.println("Connect DB Successed!");
+                System.out.println("Connect DB Succeed!");
             }
         } catch (Exception e) {
             throw new SQLException("Connect DB Failed!" + e.getMessage());

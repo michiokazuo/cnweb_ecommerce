@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDaoImpl implements CommentDao {
-    public static final String NAME_COMMENT = "comment";
     private final MyConnection connection = new MyConnection();
 
     @Override
@@ -94,8 +93,8 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public Comment insert(Comment comment) throws SQLException {
         Comment new_comment = null;
-        String sql = "INSERT INTO " + NAME_COMMENT + " (comment, rate, product_id, user_id, deleted, modify_date" +
-                ", create_date, create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AppConfig.TABLE_COMMENT + " (comment, rate, product_id, user_id, deleted" +
+                ", modify_date, create_date, create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, comment.getComment());
@@ -126,7 +125,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public Comment update(Comment comment) throws SQLException {
         Comment update_comment = null;
-        String sql = "UPDATE " + NAME_COMMENT + " SET comment = ?, rate = ?, product_id = ?, user_id = ?" +
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET comment = ?, rate = ?, product_id = ?, user_id = ?" +
                 ", modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
@@ -147,7 +146,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + NAME_COMMENT + " SET deleted = true WHERE id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id);
@@ -194,7 +193,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public boolean deleteByProduct(Integer id_product) throws SQLException {
-        String sql = "UPDATE " + NAME_COMMENT + " SET deleted = true WHERE product_id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE product_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id_product);
@@ -205,7 +204,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public boolean deleteByUser(Integer id_user) throws SQLException {
-        String sql = "UPDATE " + NAME_COMMENT + " SET deleted = true WHERE user_id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE user_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id_user);
@@ -216,7 +215,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public boolean updateRateByUser(Integer rate, Integer id_user) throws SQLException {
-        String sql = "UPDATE " + NAME_COMMENT + " SET rate = ? WHERE id_user = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET rate = ? WHERE id_user = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, rate);

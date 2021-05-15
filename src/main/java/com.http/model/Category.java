@@ -1,6 +1,5 @@
 package com.http.model;
 
-
 import java.util.Date;
 
 public class Category extends Base {

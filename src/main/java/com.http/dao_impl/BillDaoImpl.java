@@ -110,7 +110,40 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public List<Bill> search(Bill bill) throws SQLException {
-        return null;
+        boolean need_bill = true;
+        boolean need_user = false;
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", need_bill,
+                        AppConfig.TABLE_USER, "id", need_user)
+                + ((need_user || need_user) ? " AND " : " WHERE ")
+                + " ? IS NULL " + AppConfig.TABLE_BILL + ".id = ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".name LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_BILL + ".address LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_BILL + ".status = ?"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_BILL + ".create_date) >= ?)"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_BILL + ".create_date) <= ?) ";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setInt(1, bill.getId());
+        preparedStatement.setInt(2, bill.getId());
+        preparedStatement.setString(3, bill.getUserDTO() == null ? "" : bill.getUserDTO().getName());
+        preparedStatement.setString(4, bill.getUserDTO() == null ? ""
+                : "%" + bill.getUserDTO().getName() + "%");
+        preparedStatement.setString(5, bill.getAddress());
+        preparedStatement.setString(6, "%" + bill.getAddress() + "%");
+        preparedStatement.setInt(7, bill.getStatus());
+        preparedStatement.setInt(8, bill.getStatus());
+        preparedStatement.setDate(9, bill.getCreateDate() == null ? null
+                : new Date(bill.getCreateDate().getTime()));
+        preparedStatement.setDate(10, bill.getCreateDate() == null ? null
+                : new Date(bill.getCreateDate().getTime()));
+        preparedStatement.setDate(11, bill.getCreateDate() == null ? null
+                : new Date(bill.getCreateDate().getTime()));
+        preparedStatement.setDate(12, bill.getCreateDate() == null ? null
+                : new Date(bill.getCreateDate().getTime()));
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return getList(resultSet);
     }
 
     @Override

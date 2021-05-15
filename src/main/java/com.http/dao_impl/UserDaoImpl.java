@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoImpl implements UserDao {
-    public static final String NAME_USER = "user";
     private final MyConnection connection = new MyConnection();
 
     @Override
@@ -95,7 +94,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User insert(User user) throws SQLException {
         User new_user = null;
-        String sql = "INSERT INTO " + NAME_USER + " (email, password, name, phone, role, avatar, deleted, job, gender"
+        String sql = "INSERT INTO " + AppConfig.TABLE_USER + " (email, password, name, phone, role, avatar, deleted, job, gender"
                 + ", home_town, workplace, birthday, modify_date, create_date, create_by, modify_by)"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -130,13 +129,70 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> search(User user) throws SQLException {
-        return null;
+        boolean need_user = true;
+        boolean need_role = false;
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
+                        AppConfig.TABLE_ROLE, "id", need_role)
+                + ((need_user || need_role) ? " AND " : " WHERE ")
+                + " ? IS NULL OR" + AppConfig.TABLE_USER + ".id = ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".name LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".email LIKE ?"
+                + " AND " + AppConfig.TABLE_ROLE + ".id = ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".phone LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".job LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".gender LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".home_town LIKE ?"
+                + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".workplace LIKE ?"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_USER + ".birthday) >= ?)"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_USER + ".birthday) <= ?) "
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_USER + ".create_date) >= ?)"
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_USER + ".create_date) <= ?) ";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setInt(1, user.getId());
+        preparedStatement.setInt(2, user.getId());
+        preparedStatement.setString(3, user.getName());
+        preparedStatement.setString(4, "%" + user.getName() + "%");
+        preparedStatement.setString(5, user.getEmail());
+        preparedStatement.setString(6, "%" + user.getEmail() + "%");
+        preparedStatement.setInt(7, AppConfig.roles.get(AppConfig.USER).getId());
+        preparedStatement.setString(8, user.getPhone());
+        preparedStatement.setString(9, "%" + user.getPhone() + "%");
+        preparedStatement.setString(10, user.getJob());
+        preparedStatement.setString(11, "%" + user.getJob() + "%");
+        preparedStatement.setString(12, user.getGender());
+        preparedStatement.setString(13, "%" + user.getGender() + "%");
+        preparedStatement.setString(14, user.getHomeTown());
+        preparedStatement.setString(15, "%" + user.getHomeTown() + "%");
+        preparedStatement.setString(16, user.getWorkplace());
+        preparedStatement.setString(17, "%" + user.getWorkplace() + "%");
+        preparedStatement.setDate(18, user.getBirthday() == null ? null
+                : new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(19, user.getBirthday() == null ? null
+                : new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(20, user.getBirthday() == null ? null
+                : new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(21, user.getBirthday() == null ? null
+                : new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(22, user.getCreateDate() == null ? null
+                : new Date(user.getCreateDate().getTime()));
+        preparedStatement.setDate(23, user.getCreateDate() == null ? null
+                : new Date(user.getCreateDate().getTime()));
+        preparedStatement.setDate(24, user.getCreateDate() == null ? null
+                : new Date(user.getCreateDate().getTime()));
+        preparedStatement.setDate(25, user.getCreateDate() == null ? null
+                : new Date(user.getCreateDate().getTime()));
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return getList(resultSet);
     }
 
     @Override
     public User update(User user) throws SQLException {
         User update_user = null;
-        String sql = "UPDATE " + NAME_USER + " SET email = ?, password = ?, name = ?, phone = ?, avatar = ?" +
+        String sql = "UPDATE " + AppConfig.TABLE_USER + " SET email = ?, password = ?, name = ?, phone = ?, avatar = ?" +
                 ", job = ?, gender = ?, home_town = ?, workplace = ?, birthday = ?, modify_date = ?" +
                 ", modify_by = ? WHERE id = ?";
 
@@ -165,7 +221,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + NAME_USER + " SET deleted = true WHERE id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_USER + " SET deleted = true WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id);
@@ -184,7 +240,7 @@ public class UserDaoImpl implements UserDao {
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
                 + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
-                AppConfig.TABLE_USER +".password = ?";
+                AppConfig.TABLE_USER + ".password = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, loginForm.getEmail());
@@ -206,7 +262,7 @@ public class UserDaoImpl implements UserDao {
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
                 + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
-                AppConfig.TABLE_USER +".phone = ?";
+                AppConfig.TABLE_USER + ".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, email);
@@ -225,7 +281,7 @@ public class UserDaoImpl implements UserDao {
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
                 + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
-                AppConfig.TABLE_USER +".phone = ?";
+                AppConfig.TABLE_USER + ".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, email);
@@ -234,5 +290,32 @@ public class UserDaoImpl implements UserDao {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         return getList(resultSet);
+    }
+
+    @Override
+    public List<Role> getRole() throws SQLException {
+        String sql = "SELECT * FROM " + AppConfig.TABLE_ROLE;
+        PreparedStatement preparedStatement = connection.prepare(sql);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return getListRole(resultSet);
+    }
+
+    List<Role> getListRole(ResultSet resultSet) throws SQLException {
+        List<Role> roles = new ArrayList<>();
+        Role role = null;
+
+        if (resultSet.first()) {
+            do {
+                role = new Role(resultSet.getInt("id"), resultSet.getString("name"),
+                        resultSet.getString("content"));
+                if (role != null) {
+                    roles.add(role);
+                }
+            } while (resultSet.next());
+        }
+
+        return roles.isEmpty() ? null : roles;
     }
 }

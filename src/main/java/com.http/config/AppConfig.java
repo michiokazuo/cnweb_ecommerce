@@ -1,5 +1,14 @@
 package com.http.config;
 
+import com.http.dao.UserDao;
+import com.http.dao_impl.UserDaoImpl;
+import com.http.dto.UserDTO;
+import com.http.model.Role;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+
 public class AppConfig {
 
     public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -41,5 +50,30 @@ public class AppConfig {
                 + (referenceHasDelete1 ? ((rootHasDelete ? "AND " : " ") + referenceTable1 + ".deleted = false") : " ")
                 + (referenceHasDelete2 ? ((rootHasDelete || referenceHasDelete1 ? "AND " : " ")
                 + referenceTable2 + ".deleted = false") : "")));
+    }
+
+    public static final String ADMIN = "ROLE_ADMIN";
+
+    public static final String USER = "ROLE_USER";
+
+    public static HashMap<String, Role> roles = new HashMap<>();
+
+    public static void setRole() throws SQLException {
+        UserDao userDao = new UserDaoImpl();
+        List<Role> roleList = userDao.getRole();
+        for (Role role : roleList) {
+            if (role.getName().equals(ADMIN))
+                roles.put(ADMIN, role);
+            else if (role.getName().equals(USER))
+                roles.put(USER, role);
+        }
+    }
+
+    public static boolean checkAdmin(UserDTO userDTO) {
+        return userDTO != null && userDTO.getRole().getName().equals(roles.get(ADMIN).getName());
+    }
+
+    public static boolean checkUser(UserDTO userDTO) {
+        return userDTO != null && userDTO.getRole().getName().equals(roles.get(USER).getName());
     }
 }
