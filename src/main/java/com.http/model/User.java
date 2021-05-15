@@ -14,7 +14,7 @@ public class User extends Base {
 
     private String phone;
 
-    private Integer role;
+    private Role role;
 
     private String avatar;
 
@@ -32,7 +32,7 @@ public class User extends Base {
         super();
     }
 
-    public User(Integer id, String email, String password, String name, String phone, Integer role, String avatar,
+    public User(Integer id, String email, String password, String name, String phone, Role role, String avatar,
                 Boolean deleted, String job, String gender, String homeTown, String workplace, Date birthday,
                 Date modifyDate, Date createDate, String createBy, String modifyBy) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);
@@ -90,11 +90,11 @@ public class User extends Base {
         return phone;
     }
 
-    public void setRole(Integer role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    public Integer getRole() {
+    public Role getRole() {
         return role;
     }
 

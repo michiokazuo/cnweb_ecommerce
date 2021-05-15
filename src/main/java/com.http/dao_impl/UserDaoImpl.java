@@ -1,7 +1,9 @@
 package com.http.dao_impl;
 
+import com.http.config.AppConfig;
 import com.http.dao.UserDao;
 import com.http.model.MyConnection;
+import com.http.model.Role;
 import com.http.model.User;
 import com.http.payload.LoginForm;
 
@@ -18,15 +20,25 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getObject(ResultSet resultSet) throws SQLException {
-        return new User(resultSet.getInt("id"), resultSet.getString("email"),
-                resultSet.getString("password"), resultSet.getString("name"),
-                resultSet.getString("phone"), resultSet.getInt("role"),
-                resultSet.getString("avatar"), resultSet.getBoolean("deleted"),
-                resultSet.getString("job"), resultSet.getString("gender"),
-                resultSet.getString("home_town"), resultSet.getString("workplace"),
-                resultSet.getDate("birthday"), resultSet.getDate("modify_date"),
-                resultSet.getDate("create_date"), resultSet.getString("create_by"),
-                resultSet.getString("modify_by"));
+        return new User(resultSet.getInt(AppConfig.TABLE_USER + ".id"),
+                resultSet.getString(AppConfig.TABLE_USER + ".email"),
+                resultSet.getString(AppConfig.TABLE_USER + ".password"),
+                resultSet.getString(AppConfig.TABLE_USER + ".name"),
+                resultSet.getString(AppConfig.TABLE_USER + ".phone"),
+                new Role(resultSet.getInt(AppConfig.TABLE_ROLE + ".id"),
+                        resultSet.getString(AppConfig.TABLE_ROLE + ".name"),
+                        resultSet.getString(AppConfig.TABLE_ROLE + ".content")),
+                resultSet.getString(AppConfig.TABLE_USER + ".avatar"),
+                resultSet.getBoolean(AppConfig.TABLE_USER + ".deleted"),
+                resultSet.getString(AppConfig.TABLE_USER + ".job"),
+                resultSet.getString(AppConfig.TABLE_USER + ".gender"),
+                resultSet.getString(AppConfig.TABLE_USER + ".home_town"),
+                resultSet.getString(AppConfig.TABLE_USER + ".workplace"),
+                resultSet.getDate(AppConfig.TABLE_USER + ".birthday"),
+                resultSet.getDate(AppConfig.TABLE_USER + ".modify_date"),
+                resultSet.getDate(AppConfig.TABLE_USER + ".create_date"),
+                resultSet.getString(AppConfig.TABLE_USER + ".create_by"),
+                resultSet.getString(AppConfig.TABLE_USER + ".modify_by"));
     }
 
     @Override
@@ -48,7 +60,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findAll() throws SQLException {
-        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false";
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", true,
+                        AppConfig.TABLE_ROLE, "id", false);
 
         PreparedStatement preparedStatement = connection.prepare(sql);
 
@@ -59,8 +73,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User findById(int id) throws SQLException {
+        boolean need_user = true;
+        boolean need_role = false;
         User user = null;
-        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND id = ?";
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
+                        AppConfig.TABLE_ROLE, "id", need_role)
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);
@@ -85,7 +104,7 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setString(2, user.getPassword());
         preparedStatement.setString(3, user.getName());
         preparedStatement.setString(4, user.getPhone());
-        preparedStatement.setInt(5, user.getRole());
+        preparedStatement.setInt(5, user.getRole().getId());
         preparedStatement.setString(6, user.getAvatar());
         preparedStatement.setBoolean(7, user.getDeleted());
         preparedStatement.setString(8, user.getJob());
@@ -117,7 +136,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User update(User user) throws SQLException {
         User update_user = null;
-        String sql = "UPDATE " + NAME_USER + " SET email = ?, password = ?, name = ?, phone = ?, role = ?, avatar = ?" +
+        String sql = "UPDATE " + NAME_USER + " SET email = ?, password = ?, name = ?, phone = ?, avatar = ?" +
                 ", job = ?, gender = ?, home_town = ?, workplace = ?, birthday = ?, modify_date = ?" +
                 ", modify_by = ? WHERE id = ?";
 
@@ -126,16 +145,15 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setString(2, user.getPassword());
         preparedStatement.setString(3, user.getName());
         preparedStatement.setString(4, user.getPhone());
-        preparedStatement.setInt(5, user.getRole());
-        preparedStatement.setString(6, user.getAvatar());
-        preparedStatement.setString(7, user.getJob());
-        preparedStatement.setString(8, user.getGender());
-        preparedStatement.setString(9, user.getHomeTown());
-        preparedStatement.setString(10, user.getWorkplace());
-        preparedStatement.setDate(11, new Date(user.getBirthday().getTime()));
-        preparedStatement.setDate(12, new Date(user.getModifyDate().getTime()));
-        preparedStatement.setString(13, user.getModifyBy());
-        preparedStatement.setInt(14, user.getId());
+        preparedStatement.setString(5, user.getAvatar());
+        preparedStatement.setString(6, user.getJob());
+        preparedStatement.setString(7, user.getGender());
+        preparedStatement.setString(8, user.getHomeTown());
+        preparedStatement.setString(9, user.getWorkplace());
+        preparedStatement.setDate(10, new Date(user.getBirthday().getTime()));
+        preparedStatement.setDate(11, new Date(user.getModifyDate().getTime()));
+        preparedStatement.setString(12, user.getModifyBy());
+        preparedStatement.setInt(13, user.getId());
 
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
@@ -159,8 +177,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByEmailAndPassword(LoginForm loginForm) throws SQLException {
+        boolean need_user = true;
+        boolean need_role = false;
         User user = null;
-        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? AND password = ?";
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
+                        AppConfig.TABLE_ROLE, "id", need_role)
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
+                AppConfig.TABLE_USER +".password = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, loginForm.getEmail());
@@ -176,7 +200,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean existsByEmailOrPhone(String email, String phone) throws SQLException {
-        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? OR phone = ?";
+        boolean need_user = true;
+        boolean need_role = false;
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
+                        AppConfig.TABLE_ROLE, "id", need_role)
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
+                AppConfig.TABLE_USER +".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, email);
@@ -189,7 +219,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getListByEmailOrPhone(String email, String phone) throws SQLException {
-        String sql = "SELECT * FROM " + NAME_USER + " WHERE deleted = false AND email = ? OR phone = ?";
+        boolean need_user = true;
+        boolean need_role = false;
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
+                        AppConfig.TABLE_ROLE, "id", need_role)
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
+                AppConfig.TABLE_USER +".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setString(1, email);

@@ -1,6 +1,6 @@
 package com.http.service;
 
-import com.http.dto.ItemDTO;
+import com.http.model.BillHasProduct;
 
-public interface BillHasProductService extends BaseService<ItemDTO> {
+public interface BillHasProductService extends BaseService<BillHasProduct> {
 }

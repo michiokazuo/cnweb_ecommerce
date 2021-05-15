@@ -1,6 +1,9 @@
 package com.http.dao_impl;
 
+import com.http.config.AppConfig;
 import com.http.dao.CommentDao;
+import com.http.dto.ProductDTO;
+import com.http.dto.UserDTO;
 import com.http.model.Comment;
 import com.http.model.MyConnection;
 
@@ -17,11 +20,22 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public Comment getObject(ResultSet resultSet) throws SQLException {
-        return new Comment(resultSet.getInt("id"), resultSet.getString("comment"),
-                resultSet.getDouble("rate"), resultSet.getInt("product_id"),
-                resultSet.getInt("user_id"), resultSet.getBoolean("deleted"),
-                resultSet.getDate("modify_date"), resultSet.getDate("create_date"),
-                resultSet.getString("create_by"), resultSet.getString("modify_by"));
+        return new Comment(resultSet.getInt(AppConfig.TABLE_COMMENT + ".id"),
+                resultSet.getString(AppConfig.TABLE_COMMENT + ".comment"),
+                resultSet.getDouble(AppConfig.TABLE_COMMENT + ".rate"),
+                new ProductDTO(resultSet.getInt(AppConfig.TABLE_PRODUCT + ".id"),
+                        resultSet.getString(AppConfig.TABLE_PRODUCT + ".name"),
+                        resultSet.getString(AppConfig.TABLE_PRODUCT + ".image"),
+                        resultSet.getBoolean(AppConfig.TABLE_PRODUCT + ".deleted")),
+                new UserDTO(resultSet.getInt(AppConfig.TABLE_USER + ".id"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".name"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".avatar"),
+                        resultSet.getBoolean(AppConfig.TABLE_USER + ".deleted")),
+                resultSet.getBoolean(AppConfig.TABLE_COMMENT + ".deleted"),
+                resultSet.getDate(AppConfig.TABLE_COMMENT + ".modify_date"),
+                resultSet.getDate(AppConfig.TABLE_COMMENT + ".create_date"),
+                resultSet.getString(AppConfig.TABLE_COMMENT + ".create_by"),
+                resultSet.getString(AppConfig.TABLE_COMMENT + ".modify_by"));
     }
 
     @Override
@@ -43,7 +57,10 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public List<Comment> findAll() throws SQLException {
-        String sql = "SELECT * FROM " + NAME_COMMENT + " WHERE deleted = false";
+        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
+                "user_id", true,
+                AppConfig.TABLE_PRODUCT, "id", true,
+                AppConfig.TABLE_USER, "id", true);
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -53,8 +70,15 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public Comment findById(int id) throws SQLException {
+        boolean need_cmt = true;
+        boolean need_product = true;
+        boolean need_user = true;
         Comment comment = null;
-        String sql = "SELECT * FROM " + NAME_COMMENT + " WHERE deleted = false AND id = ?";
+        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
+                "user_id", need_cmt,
+                AppConfig.TABLE_PRODUCT, "id", need_product,
+                AppConfig.TABLE_USER, "id", need_user)
+                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_COMMENT + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);
@@ -76,8 +100,8 @@ public class CommentDaoImpl implements CommentDao {
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, comment.getComment());
         preparedStatement.setDouble(2, comment.getRate());
-        preparedStatement.setInt(3, comment.getProductId());
-        preparedStatement.setInt(4, comment.getUserId());
+        preparedStatement.setInt(3, comment.getProductDTO().getId());
+        preparedStatement.setInt(4, comment.getUserDTO().getId());
         preparedStatement.setBoolean(5, comment.getDeleted());
         preparedStatement.setDate(6, new Date(comment.getModifyDate().getTime()));
         preparedStatement.setDate(7, new Date(comment.getCreateDate().getTime()));
@@ -108,8 +132,8 @@ public class CommentDaoImpl implements CommentDao {
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, comment.getComment());
         preparedStatement.setDouble(2, comment.getRate());
-        preparedStatement.setInt(3, comment.getProductId());
-        preparedStatement.setInt(4, comment.getUserId());
+        preparedStatement.setInt(3, comment.getProductDTO().getId());
+        preparedStatement.setInt(4, comment.getUserDTO().getId());
         preparedStatement.setDate(5, new Date(comment.getModifyDate().getTime()));
         preparedStatement.setString(6, comment.getModifyBy());
         preparedStatement.setInt(6, comment.getId());
@@ -134,8 +158,14 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public List<Comment> getAllByProduct(Integer id_product) throws SQLException {
-        Comment comment = null;
-        String sql = "SELECT * FROM " + NAME_COMMENT + " WHERE deleted = false AND product_id = ?";
+        boolean need_cmt = true;
+        boolean need_product = true;
+        boolean need_user = true;
+        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
+                "user_id", need_cmt,
+                AppConfig.TABLE_PRODUCT, "id", need_product,
+                AppConfig.TABLE_USER, "id", need_user)
+                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_PRODUCT + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id_product);
@@ -146,8 +176,14 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public List<Comment> getALlByUser(Integer id_user) throws SQLException {
-        Comment comment = null;
-        String sql = "SELECT * FROM " + NAME_COMMENT + " WHERE deleted = false AND user_id = ?";
+        boolean need_cmt = true;
+        boolean need_product = true;
+        boolean need_user = true;
+        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
+                "user_id", need_cmt,
+                AppConfig.TABLE_PRODUCT, "id", need_product,
+                AppConfig.TABLE_USER, "id", need_user)
+                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id_user);

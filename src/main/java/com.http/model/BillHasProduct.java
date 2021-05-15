@@ -1,31 +1,33 @@
 package com.http.model;
 
+import com.http.dto.ProductDTO;
+
 public class BillHasProduct {
 
-    private Integer productId;
+    private ProductDTO productDTO;
 
     private Integer billId;
 
     private Integer quantity;
 
-    private Double productPrice;
+    private Double productPrice; // price product after counting with discount
 
     public BillHasProduct() {
     }
 
-    public BillHasProduct(Integer productId, Integer billId, Integer quantity, Double productPrice) {
-        this.productId = productId;
+    public BillHasProduct(ProductDTO productDTO, Integer billId, Integer quantity, Double productPrice) {
+        this.productDTO = productDTO;
         this.billId = billId;
         this.quantity = quantity;
         this.productPrice = productPrice;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public ProductDTO getProductDTO() {
+        return productDTO;
     }
 
-    public Integer getProductId() {
-        return productId;
+    public void setProductDTO(ProductDTO productDTO) {
+        this.productDTO = productDTO;
     }
 
     public void setBillId(Integer billId) {
@@ -55,7 +57,7 @@ public class BillHasProduct {
     @Override
     public String toString() {
         return "BillHasProduct{" +
-                "productId=" + productId + '\'' +
+                "productDTO=" + productDTO + '\'' +
                 "billId=" + billId + '\'' +
                 "quantity=" + quantity + '\'' +
                 "productPrice=" + productPrice + '\'' +

@@ -1,12 +1,14 @@
 package com.http.model;
 
+import com.http.dto.UserDTO;
+
 import java.util.Date;
 
 public class Bill extends Base {
 
     private Integer id;
 
-    private Integer idUser;
+    private UserDTO userDTO;
 
     private String address;
 
@@ -16,11 +18,11 @@ public class Bill extends Base {
         super();
     }
 
-    public Bill(Integer id, Integer idUser, String address, Integer status, Boolean deleted, Date modifyDate,
+    public Bill(Integer id, UserDTO userDTO, String address, Integer status, Boolean deleted, Date modifyDate,
                 Date createDate, String createBy, String modifyBy) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
-        this.idUser = idUser;
+        this.userDTO = userDTO;
         this.address = address;
         this.status = status;
     }
@@ -33,12 +35,12 @@ public class Bill extends Base {
         return id;
     }
 
-    public void setIdUser(Integer idUser) {
-        this.idUser = idUser;
+    public UserDTO getUserDTO() {
+        return userDTO;
     }
 
-    public Integer getIdUser() {
-        return idUser;
+    public void setUserDTO(UserDTO userDTO) {
+        this.userDTO = userDTO;
     }
 
     public void setAddress(String address) {
@@ -61,7 +63,7 @@ public class Bill extends Base {
     public String toString() {
         return "Bill{" +
                 "id=" + id + '\'' +
-                "idUser=" + idUser + '\'' +
+                "userDTO=" + userDTO + '\'' +
                 "address=" + address + '\'' +
                 "status=" + status + '\'' +
                 "deleted=" + getDeleted() + '\'' +

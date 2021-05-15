@@ -1,6 +1,8 @@
 package com.http.dao_impl;
 
+import com.http.config.AppConfig;
 import com.http.dao.BillHasProductDao;
+import com.http.dto.ProductDTO;
 import com.http.model.BillHasProduct;
 import com.http.model.MyConnection;
 
@@ -16,8 +18,14 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public BillHasProduct getObject(ResultSet resultSet) throws SQLException {
-        return new BillHasProduct(resultSet.getInt("product_id"), resultSet.getInt("bill_id"),
-                resultSet.getInt("quantity"), resultSet.getDouble("product_price"));
+        return new BillHasProduct(
+                new ProductDTO(resultSet.getInt(AppConfig.TABLE_PRODUCT + ".id"),
+                        resultSet.getString(AppConfig.TABLE_PRODUCT + ".name"),
+                        resultSet.getString(AppConfig.TABLE_PRODUCT + ".image"),
+                        resultSet.getBoolean(AppConfig.TABLE_PRODUCT + ".deleted")),
+                resultSet.getInt(AppConfig.TABLE_BILL_HAS_PRODUCT + ".bill_id"),
+                resultSet.getInt(AppConfig.TABLE_BILL_HAS_PRODUCT + ".quantity"),
+                resultSet.getDouble(AppConfig.TABLE_BILL_HAS_PRODUCT + ".product_price"));
     }
 
     @Override
@@ -53,11 +61,11 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, billHasProduct.getBillId());
-        preparedStatement.setInt(2, billHasProduct.getProductId());
+        preparedStatement.setInt(2, billHasProduct.getProductDTO().getId());
         preparedStatement.setInt(3, billHasProduct.getQuantity());
         preparedStatement.setDouble(4, billHasProduct.getProductPrice());
 
-        int rs = preparedStatement.executeUpdate();
+        preparedStatement.executeUpdate();
 
         return null;
     }
@@ -85,7 +93,13 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public List<BillHasProduct> getListByBill(Integer id_bill) throws SQLException {
-        String sql = "SELECT * FROM " + NAME_BILL_HAS_PRODUCT + " WHERE bill_id = ?";
+        boolean need_bill_has_product = false;
+        boolean need_product = false;
+        String sql = AppConfig.createSqlTwoTableSelect(
+                AppConfig.TABLE_BILL_HAS_PRODUCT, "product_id", need_bill_has_product,
+                AppConfig.TABLE_PRODUCT, "id", need_product)
+                + ((need_bill_has_product || need_product) ? " AND " : " WHERE ")
+                + NAME_BILL_HAS_PRODUCT + ".bill_id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id_bill);

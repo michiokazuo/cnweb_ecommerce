@@ -1,6 +1,8 @@
 package com.http.dao_impl;
 
+import com.http.config.AppConfig;
 import com.http.dao.BillDao;
+import com.http.dto.UserDTO;
 import com.http.model.Bill;
 import com.http.model.MyConnection;
 
@@ -12,16 +14,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BillDaoImpl implements BillDao {
-    public static final String NAME_BILL = "bill";
     private final MyConnection connection = new MyConnection();
 
     @Override
     public Bill getObject(ResultSet resultSet) throws SQLException {
-        return new Bill(resultSet.getInt("id"), resultSet.getInt("id_user"),
-                resultSet.getString("address"), resultSet.getInt("status"),
-                resultSet.getBoolean("deleted"), resultSet.getDate("modify_date"),
-                resultSet.getDate("create_date"), resultSet.getString("create_by"),
-                resultSet.getString("modify_by"));
+        return new Bill(resultSet.getInt(AppConfig.TABLE_BILL + ".id"),
+                new UserDTO(resultSet.getInt(AppConfig.TABLE_USER + ".id"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".name"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".avatar"),
+                        resultSet.getBoolean(AppConfig.TABLE_USER + ".deleted")),
+                resultSet.getString(AppConfig.TABLE_BILL + ".address"),
+                resultSet.getInt(AppConfig.TABLE_BILL + ".status"),
+                resultSet.getBoolean(AppConfig.TABLE_BILL + ".deleted"),
+                resultSet.getDate(AppConfig.TABLE_BILL + ".modify_date"),
+                resultSet.getDate(AppConfig.TABLE_BILL + ".create_date"),
+                resultSet.getString(AppConfig.TABLE_BILL + ".create_by"),
+                resultSet.getString(AppConfig.TABLE_BILL + ".modify_by"));
     }
 
     @Override
@@ -43,7 +51,9 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public List<Bill> findAll() throws SQLException {
-        String sql = "SELECT * FROM " + NAME_BILL + " WHERE deleted = false";
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", true,
+                        AppConfig.TABLE_USER, "id", false);
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -53,8 +63,13 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public Bill findById(int id) throws SQLException {
+        boolean need_bill = true;
+        boolean need_user = false;
         Bill bill = null;
-        String sql = "SELECT * FROM " + NAME_BILL + " WHERE deleted = false AND id = ?";
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", need_bill,
+                        AppConfig.TABLE_USER, "id", need_user)
+                + ((need_user || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_BILL + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);
@@ -70,11 +85,11 @@ public class BillDaoImpl implements BillDao {
     @Override
     public Bill insert(Bill bill) throws SQLException {
         Bill new_bill = null;
-        String sql = "INSERT INTO " + NAME_BILL + " (id_user, address, status, deleted, modify_date, create_date" +
-                ", create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AppConfig.TABLE_BILL + " (id_user, address, status, deleted, modify_date" +
+                ", create_date, create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, bill.getIdUser());
+        preparedStatement.setInt(1, bill.getUserDTO().getId());
         preparedStatement.setString(2, bill.getAddress());
         preparedStatement.setInt(3, bill.getStatus());
         preparedStatement.setBoolean(4, bill.getDeleted());
@@ -105,7 +120,7 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + NAME_BILL + " SET deleted = false WHERE id = ?";
+        String sql = "UPDATE " + AppConfig.TABLE_BILL + " SET deleted = false WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, id);
@@ -117,8 +132,12 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public List<Bill> getAllBillByUser(Integer id) throws SQLException {
-        Bill bill = null;
-        String sql = "SELECT * FROM " + NAME_BILL + " WHERE deleted = false AND id_user = ?";
+        boolean need_bill = true;
+        boolean need_user = false;
+        String sql = AppConfig
+                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", need_bill,
+                        AppConfig.TABLE_USER, "id", need_user)
+                + ((need_bill || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setInt(1, id);

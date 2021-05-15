@@ -1,5 +1,7 @@
 package com.http.model;
 
+import com.http.dto.CategoryDTO;
+
 import java.util.Date;
 
 public class Product extends Base {
@@ -36,7 +38,7 @@ public class Product extends Base {
 
     private Integer guarantee;
 
-    private Integer categoryId;
+    private CategoryDTO categoryDTO;
 
     private Integer bought;
 
@@ -49,7 +51,7 @@ public class Product extends Base {
     public Product(Integer id, String name, Double price, Integer discount, Boolean deleted, String image,
                    String introduction, String CPU, String display, Integer memory, Integer storage, String GPU,
                    Double battery, Double weight, String operatingSystem, Boolean soldOut, Integer guarantee,
-                   Integer categoryId, Integer bought, Date modifyDate, Date createDate, String createBy,
+                   CategoryDTO categoryDTO, Integer bought, Date modifyDate, Date createDate, String createBy,
                    String modifyBy, String others) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
@@ -68,7 +70,7 @@ public class Product extends Base {
         this.operatingSystem = operatingSystem;
         this.soldOut = soldOut;
         this.guarantee = guarantee;
-        this.categoryId = categoryId;
+        this.categoryDTO = categoryDTO;
         this.bought = bought;
         this.others = others;
     }
@@ -201,12 +203,12 @@ public class Product extends Base {
         return guarantee;
     }
 
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(CategoryDTO categoryDTO) {
+        this.categoryDTO = categoryDTO;
     }
 
-    public Integer getCategoryId() {
-        return categoryId;
+    public CategoryDTO getCategory() {
+        return categoryDTO;
     }
 
     public void setBought(Integer bought) {
@@ -244,7 +246,7 @@ public class Product extends Base {
                 "operatingSystem=" + operatingSystem + '\'' +
                 "soldOut=" + soldOut + '\'' +
                 "guarantee=" + guarantee + '\'' +
-                "categoryId=" + categoryId + '\'' +
+                "categoryDTO=" + categoryDTO + '\'' +
                 "bought=" + bought + '\'' +
                 "deleted=" + getDeleted() + '\'' +
                 "modifyDate=" + getModifyDate() + '\'' +

@@ -2,7 +2,7 @@ package com.http.service_impl;
 
 import com.http.dao.UserDao;
 import com.http.dao_impl.UserDaoImpl;
-import com.http.dto.UserDTO;
+import com.http.model.User;
 import com.http.service.UserService;
 
 import java.sql.SQLException;
@@ -12,27 +12,27 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoImpl();
 
     @Override
-    public List<UserDTO> findAll() throws SQLException {
+    public List<User> findAll() throws SQLException {
         return null;
     }
 
     @Override
-    public UserDTO findById(int id) throws SQLException {
+    public User findById(int id) throws SQLException {
         return null;
     }
 
     @Override
-    public UserDTO insert(UserDTO userDTO) throws SQLException {
+    public User insert(User user) throws SQLException {
         return null;
     }
 
     @Override
-    public List<UserDTO> search(UserDTO userDTO) throws SQLException {
+    public List<User> search(User user) throws SQLException {
         return null;
     }
 
     @Override
-    public UserDTO update(UserDTO userDTO) throws SQLException {
+    public User update(User user) throws SQLException {
         return null;
     }
 

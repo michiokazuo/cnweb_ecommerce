@@ -1,6 +1,6 @@
 package com.http.service;
 
-import com.http.dto.UserDTO;
+import com.http.model.User;
 
-public interface UserService extends BaseService<UserDTO> {
+public interface UserService extends BaseService<User> {
 }

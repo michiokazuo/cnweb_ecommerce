@@ -1,8 +1,11 @@
 package com.http.model;
 
+import com.http.dto.ProductDTO;
+import com.http.dto.UserDTO;
+
 import java.util.Date;
 
-public class Comment extends Base{
+public class Comment extends Base {
 
     private Integer id;
 
@@ -10,22 +13,22 @@ public class Comment extends Base{
 
     private Double rate;
 
-    private Integer productId;
+    private ProductDTO productDTO;
 
-    private Integer userId;
+    private UserDTO userDTO;
 
     public Comment() {
         super();
     }
 
-    public Comment(Integer id, String comment, Double rate, Integer productId, Integer userId,
+    public Comment(Integer id, String comment, Double rate, ProductDTO productDTO, UserDTO userDTO,
                    Boolean deleted, Date modifyDate, Date createDate, String createBy, String modifyBy) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);
         this.id = id;
         this.comment = comment;
         this.rate = rate;
-        this.productId = productId;
-        this.userId = userId;
+        this.productDTO = productDTO;
+        this.userDTO = userDTO;
     }
 
     public void setId(Integer id) {
@@ -52,20 +55,20 @@ public class Comment extends Base{
         return rate;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public ProductDTO getProductDTO() {
+        return productDTO;
     }
 
-    public Integer getProductId() {
-        return productId;
+    public void setProductDTO(ProductDTO productDTO) {
+        this.productDTO = productDTO;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public UserDTO getUserDTO() {
+        return userDTO;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public void setUserDTO(UserDTO userDTO) {
+        this.userDTO = userDTO;
     }
 
     @Override
@@ -74,8 +77,8 @@ public class Comment extends Base{
                 "id=" + id + '\'' +
                 "comment=" + comment + '\'' +
                 "rate=" + rate + '\'' +
-                "productId=" + productId + '\'' +
-                "userId=" + userId + '\'' +
+                "productDTO=" + productDTO + '\'' +
+                "userDTO=" + userDTO + '\'' +
                 "deleted=" + getDeleted() + '\'' +
                 "modifyDate=" + getModifyDate() + '\'' +
                 "createDate=" + getCreateDate() + '\'' +

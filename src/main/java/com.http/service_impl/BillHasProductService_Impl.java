@@ -2,7 +2,7 @@ package com.http.service_impl;
 
 import com.http.dao.BillHasProductDao;
 import com.http.dao_impl.BillHasProductDaoImpl;
-import com.http.dto.ItemDTO;
+import com.http.model.BillHasProduct;
 import com.http.service.BillHasProductService;
 
 import java.sql.SQLException;
@@ -12,27 +12,27 @@ public class BillHasProductService_Impl implements BillHasProductService {
     private final BillHasProductDao billHasProductDao = new BillHasProductDaoImpl();
 
     @Override
-    public List<ItemDTO> findAll() throws SQLException {
+    public List<BillHasProduct> findAll() throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO findById(int id) throws SQLException {
+    public BillHasProduct findById(int id) throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO insert(ItemDTO itemDTO) throws SQLException {
+    public BillHasProduct insert(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 
     @Override
-    public List<ItemDTO> search(ItemDTO itemDTO) throws SQLException {
+    public List<BillHasProduct> search(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 
     @Override
-    public ItemDTO update(ItemDTO itemDTO) throws SQLException {
+    public BillHasProduct update(BillHasProduct billHasProduct) throws SQLException {
         return null;
     }
 

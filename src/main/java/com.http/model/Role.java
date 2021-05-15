@@ -8,6 +8,15 @@ public class Role {
 
     private String content;
 
+    public Role() {
+    }
+
+    public Role(Integer id, String name, String content) {
+        this.id = id;
+        this.name = name;
+        this.content = content;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
