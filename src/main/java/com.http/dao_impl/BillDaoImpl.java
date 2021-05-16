@@ -22,6 +22,7 @@ public class BillDaoImpl implements BillDao {
                 new UserDTO(resultSet.getInt(AppConfig.TABLE_USER + ".id"),
                         resultSet.getString(AppConfig.TABLE_USER + ".name"),
                         resultSet.getString(AppConfig.TABLE_USER + ".avatar"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".email"),
                         resultSet.getBoolean(AppConfig.TABLE_USER + ".deleted")),
                 resultSet.getString(AppConfig.TABLE_BILL + ".address"),
                 resultSet.getInt(AppConfig.TABLE_BILL + ".status"),
@@ -62,7 +63,7 @@ public class BillDaoImpl implements BillDao {
     }
 
     @Override
-    public Bill findById(int id) throws SQLException {
+    public Bill findById(Integer id) throws SQLException {
         boolean need_bill = true;
         boolean need_user = false;
         Bill bill = null;
@@ -152,15 +153,34 @@ public class BillDaoImpl implements BillDao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_BILL + " SET deleted = false WHERE id = ?";
+    public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_BILL
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
+        preparedStatement.setInt(3, id);
+        preparedStatement.setString(2, email);
 
         int delete = preparedStatement.executeUpdate();
 
         return delete >= 0;
+    }
+
+    @Override
+    public void updateCreateAndModifyBy(String oldEmail, String newEmail) throws SQLException {
+        updateBy(oldEmail, newEmail, "create_by");
+        updateBy(oldEmail, newEmail, "modify_by");
+    }
+
+    private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_BILL + " SET " + column + " = ?  WHERE " + column + " = ?";
+
+        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
+        preparedStatement.setString(1, newEmail);
+        preparedStatement.setString(2, oldEmail);
+
+        preparedStatement.executeUpdate();
     }
 
     @Override
@@ -179,4 +199,5 @@ public class BillDaoImpl implements BillDao {
 
         return getList(resultSet);
     }
+
 }

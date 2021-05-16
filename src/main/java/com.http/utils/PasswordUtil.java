@@ -17,7 +17,7 @@ public class PasswordUtil {
         return rs;
     }
 
-    public static String bytesToHex(byte[] bytes) {
+    private static String bytesToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
 
         for (byte byt : bytes) {

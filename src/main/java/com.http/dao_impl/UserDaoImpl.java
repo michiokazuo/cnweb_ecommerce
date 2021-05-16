@@ -71,7 +71,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User findById(int id) throws SQLException {
+    public User findById(Integer id) throws SQLException {
         boolean need_user = true;
         boolean need_role = false;
         User user = null;
@@ -220,15 +220,34 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_USER + " SET deleted = true WHERE id = ?";
+    public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_USER
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id);
+        preparedStatement.setInt(3, id);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
+        preparedStatement.setString(2, email);
 
         int delete = preparedStatement.executeUpdate();
 
         return delete >= 0;
+    }
+
+    @Override
+    public void updateCreateAndModifyBy(String oldEmail, String newEmail) throws SQLException {
+        updateBy(oldEmail, newEmail, "create_by");
+        updateBy(oldEmail, newEmail, "modify_by");
+    }
+
+    private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_USER + " SET " + column + " = ?  WHERE " + column + " = ?";
+
+        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
+        preparedStatement.setString(1, newEmail);
+        preparedStatement.setString(2, oldEmail);
+
+        preparedStatement.executeUpdate();
     }
 
     @Override

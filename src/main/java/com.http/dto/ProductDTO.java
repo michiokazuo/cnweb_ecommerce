@@ -22,6 +22,11 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
+    public ProductDTO(Integer numberOfRate, Double rate) {
+        this.numberOfRate = numberOfRate;
+        this.rate = rate;
+    }
+
     public ProductDTO(Integer id, String name, String image, Boolean deleted) {
         this.id = id;
         this.name = name;

@@ -12,6 +12,12 @@ public class Category extends Base {
         super();
     }
 
+    public Category(Integer id, String name, Date createDate) {
+        this.id = id;
+        this.name = name;
+        this.setCreateDate(createDate);
+    }
+
     public Category(Integer id, String name, Boolean deleted, Date modifyDate, Date createDate, String createBy,
                     String modifyBy) {
         super(modifyDate, createDate, createBy, modifyBy, deleted);

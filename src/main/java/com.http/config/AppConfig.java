@@ -1,8 +1,10 @@
 package com.http.config;
 
 import com.http.dao.UserDao;
+import com.http.dao_impl.BillDaoImpl;
 import com.http.dao_impl.UserDaoImpl;
 import com.http.dto.UserDTO;
+import com.http.model.MyConnection;
 import com.http.model.Role;
 
 import java.sql.SQLException;
@@ -10,6 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AppConfig {
+
+    public static UserDTO userInSysTem = null;
+
+    public static final String PATH_SAVE_FILES = "src/main/webapp/resources/files";
+    public final static String SAVE_DIRECTORY = "file-upload";
 
     public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     public static final String URL_DATABASE = "jdbc:mysql://localhost:3306/cnweb";
@@ -75,5 +82,10 @@ public class AppConfig {
 
     public static boolean checkUser(UserDTO userDTO) {
         return userDTO != null && userDTO.getRole().getName().equals(roles.get(USER).getName());
+    }
+
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        new MyConnection().connectDB();
+        new BillDaoImpl().updateCreateAndModifyBy("a", "o");
     }
 }

@@ -9,11 +9,24 @@ public class UserDTO {
 
     private String avatar;
 
+    private String email;
+
     private Role role;
 
     private Boolean deleted;
 
+    private Integer numberOfBill;
+
     public UserDTO() {
+    }
+
+    public UserDTO(Integer id, String name, String avatar, String email, Boolean deleted, Integer numberOfBill) {
+        this.id = id;
+        this.name = name;
+        this.avatar = avatar;
+        this.email = email;
+        this.deleted = deleted;
+        this.numberOfBill = numberOfBill;
     }
 
     public UserDTO(Integer id, String name, String avatar, Boolean deleted) {
@@ -23,10 +36,19 @@ public class UserDTO {
         this.deleted = deleted;
     }
 
-    public UserDTO(Integer id, String name, String avatar, Role role, Boolean deleted) {
+    public UserDTO(Integer id, String name, String avatar, String email, Boolean deleted) {
         this.id = id;
         this.name = name;
         this.avatar = avatar;
+        this.email = email;
+        this.deleted = deleted;
+    }
+
+    public UserDTO(Integer id, String name, String avatar, String email, Role role, Boolean deleted) {
+        this.id = id;
+        this.name = name;
+        this.avatar = avatar;
+        this.email = email;
         this.role = role;
         this.deleted = deleted;
     }
@@ -71,12 +93,29 @@ public class UserDTO {
         this.role = role;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Integer getNumberOfBill() {
+        return numberOfBill;
+    }
+
+    public void setNumberOfBill(Integer numberOfBill) {
+        this.numberOfBill = numberOfBill;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", avatar='" + avatar + '\'' +
+                ", email='" + email + '\'' +
                 ", role=" + role +
                 ", deleted=" + deleted +
                 '}';

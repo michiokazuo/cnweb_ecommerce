@@ -4,23 +4,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JsonResult {
-    private Integer code;
+    private String message;
     private Object data;
 
     public JsonResult() {
     }
 
-    public JsonResult(Integer code, Object data) {
-        this.code = code;
+    public JsonResult(String message, Object data) {
+        this.message = message;
         this.data = data;
     }
 
-    public Integer getCode() {
-        return code;
+    public String getMessage() {
+        return message;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public Object getData() {
@@ -34,18 +34,18 @@ public class JsonResult {
     @Override
     public String toString() {
         return "JsonResult{" +
-                "code=" + code +
+                "message=" + message +
                 ", data=" + data +
                 '}';
     }
 
     public String jsonSuccess(Object data) {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("MM-dd-yyyy").create();
-        return gson.toJson(new JsonResult(200, data));
+        Gson gson = new GsonBuilder().create();
+//                .setDateFormat("MM-dd-yyyy").create();
+        return gson.toJson(new JsonResult("Success", data));
     }
 
     public String jsonFailure(Object data) {
-        return new Gson().toJson(new JsonResult(400, data));
+        return new Gson().toJson(new JsonResult("Fail", data));
     }
 }

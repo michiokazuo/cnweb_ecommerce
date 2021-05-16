@@ -74,7 +74,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public Product findById(int id) throws SQLException {
+    public Product findById(Integer id) throws SQLException {
         boolean need_product = true;
         boolean need_category = false;
         Product product = null;
@@ -265,13 +265,33 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_PRODUCT + " SET deleted = true WHERE id = ?";
+    public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_PRODUCT
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id);
+        preparedStatement.setString(2, email);
+        preparedStatement.setInt(3, id);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
 
         int delete = preparedStatement.executeUpdate();
+
         return delete >= 0;
+    }
+
+    @Override
+    public void updateCreateAndModifyBy(String oldEmail, String newEmail) throws SQLException {
+        updateBy(oldEmail, newEmail, "create_by");
+        updateBy(oldEmail, newEmail, "modify_by");
+    }
+
+    private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_PRODUCT + " SET " + column + " = ?  WHERE " + column + " = ?";
+
+        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
+        preparedStatement.setString(1, newEmail);
+        preparedStatement.setString(2, oldEmail);
+
+        preparedStatement.executeUpdate();
     }
 }

@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BillHasProductDaoImpl implements BillHasProductDao {
@@ -50,7 +51,7 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
     }
 
     @Override
-    public BillHasProduct findById(int id) throws SQLException {
+    public BillHasProduct findById(Integer id) throws SQLException {
         return null;
     }
 
@@ -80,8 +81,12 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
+    public boolean delete(Integer id, String email, Date modify) throws SQLException {
         return false;
+    }
+
+    @Override
+    public void updateCreateAndModifyBy(String oldEmail, String newEmail) throws SQLException {
     }
 
     @Override

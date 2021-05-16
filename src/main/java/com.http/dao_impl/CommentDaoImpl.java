@@ -29,6 +29,7 @@ public class CommentDaoImpl implements CommentDao {
                 new UserDTO(resultSet.getInt(AppConfig.TABLE_USER + ".id"),
                         resultSet.getString(AppConfig.TABLE_USER + ".name"),
                         resultSet.getString(AppConfig.TABLE_USER + ".avatar"),
+                        resultSet.getString(AppConfig.TABLE_USER + ".email"),
                         resultSet.getBoolean(AppConfig.TABLE_USER + ".deleted")),
                 resultSet.getBoolean(AppConfig.TABLE_COMMENT + ".deleted"),
                 resultSet.getDate(AppConfig.TABLE_COMMENT + ".modify_date"),
@@ -68,7 +69,7 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
-    public Comment findById(int id) throws SQLException {
+    public Comment findById(Integer id) throws SQLException {
         boolean need_cmt = true;
         boolean need_product = true;
         boolean need_user = true;
@@ -145,14 +146,34 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE id = ?";
+    public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id);
+        preparedStatement.setInt(3, id);
+        preparedStatement.setString(2, email);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
 
         int delete = preparedStatement.executeUpdate();
+
         return delete >= 0;
+    }
+
+    @Override
+    public void updateCreateAndModifyBy(String oldEmail, String newEmail) throws SQLException {
+        updateBy(oldEmail, newEmail, "create_by");
+        updateBy(oldEmail, newEmail, "modify_by");
+    }
+
+    private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET " + column + " = ?  WHERE " + column + " = ?";
+
+        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
+        preparedStatement.setString(1, newEmail);
+        preparedStatement.setString(2, oldEmail);
+
+        preparedStatement.executeUpdate();
     }
 
     @Override
@@ -192,36 +213,76 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
-    public boolean deleteByProduct(Integer id_product) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE product_id = ?";
+    public boolean deleteByProduct(Integer id_product, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE product_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id_product);
+        preparedStatement.setInt(3, id_product);
+        preparedStatement.setString(2, email);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
 
         int delete = preparedStatement.executeUpdate();
+
         return delete >= 0;
     }
 
     @Override
-    public boolean deleteByUser(Integer id_user) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET deleted = true WHERE user_id = ?";
+    public boolean deleteByUser(Integer id_user, String email, java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
+                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE user_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, id_user);
+        preparedStatement.setString(2, email);
+        preparedStatement.setInt(3, id_user);
+        preparedStatement.setDate(1, new Date(modify.getTime()));
 
         int delete = preparedStatement.executeUpdate();
+
         return delete >= 0;
     }
 
     @Override
-    public boolean updateRateByUser(Integer rate, Integer id_user) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET rate = ? WHERE id_user = ?";
+    public boolean updateRateByUser(Double rate, Integer id_user, Integer id_product, String email
+            , java.util.Date modify) throws SQLException {
+        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
+                + " SET rate = ?, modify_date = ?, modify_by = ? WHERE user_id = ? AND product_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, rate);
-        preparedStatement.setInt(1, id_user);
+        preparedStatement.setDouble(1, rate);
+        preparedStatement.setString(3, email);
+        preparedStatement.setDate(2, new Date(modify.getTime()));
+        preparedStatement.setInt(4, id_user);
+        preparedStatement.setInt(5, id_product);
 
         int update = preparedStatement.executeUpdate();
+
         return update >= 0;
+    }
+
+    @Override
+    public ProductDTO getAboutRateOfProduct(Integer id_product) throws SQLException {
+        String sql = "SELECT COUNT(*) NUM, AVG(rate) rate FROM " + AppConfig.TABLE_COMMENT
+                + " WHERE product_id = ? GROUP BY user_id";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setDouble(1, id_product);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        if (resultSet.first()) {
+            return new ProductDTO(resultSet.getInt("NUM"), resultSet.getDouble("rate"));
+        }
+        return null;
+    }
+
+    @Override
+    public int countCmtByProduct(Integer id_product) throws SQLException {
+        String sql = "SELECT COUNT(*) NUM FROM " + AppConfig.TABLE_COMMENT + " WHERE product_id = ?";
+
+        PreparedStatement preparedStatement = connection.prepare(sql);
+        preparedStatement.setDouble(1, id_product);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return resultSet.getInt("NUM");
     }
 }
