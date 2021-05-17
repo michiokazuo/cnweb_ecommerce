@@ -1,10 +1,8 @@
 package com.http.config;
 
 import com.http.dao.UserDao;
-import com.http.dao_impl.BillDaoImpl;
 import com.http.dao_impl.UserDaoImpl;
 import com.http.dto.UserDTO;
-import com.http.model.MyConnection;
 import com.http.model.Role;
 
 import java.sql.SQLException;
@@ -85,7 +83,5 @@ public class AppConfig {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        new MyConnection().connectDB();
-        new BillDaoImpl().updateCreateAndModifyBy("a", "o");
     }
 }

@@ -16,7 +16,7 @@ public class ProductConvert implements Convert<Product, ProductDTO> {
         if (product == null) return null;
         ProductDTO dto = new ProductDTO(product.getId(), product.getName(), product.getPrice(), product.getDiscount(),
                 product.getImage(), 0, 0.0, commentDao.countCmtByProduct(product.getId()),
-                product.getDeleted());
+                product.getDeleted(), product.getCategory());
         ProductDTO tmp = commentDao.getAboutRateOfProduct(dto.getId());
         if (tmp != null) {
             dto.setNumberOfRate(tmp.getNumberOfRate());

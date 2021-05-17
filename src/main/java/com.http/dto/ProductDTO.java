@@ -13,6 +13,8 @@ public class ProductDTO {
 
     private Boolean deleted;
 
+    private CategoryDTO categoryDTO;
+
     private Integer numberOfRate;
 
     private Double rate;
@@ -44,7 +46,7 @@ public class ProductDTO {
     }
 
     public ProductDTO(Integer id, String name, Double price, Integer discount, String image, Integer numberOfRate,
-                      Double rate, Integer numberOfCMT, Boolean deleted) {
+                      Double rate, Integer numberOfCMT, Boolean deleted, CategoryDTO categoryDTO) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -54,6 +56,7 @@ public class ProductDTO {
         this.rate = rate;
         this.numberOfCMT = numberOfCMT;
         this.deleted = deleted;
+        this.categoryDTO = categoryDTO;
     }
 
     public Integer getId() {
@@ -94,6 +97,14 @@ public class ProductDTO {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public CategoryDTO getCategoryDTO() {
+        return categoryDTO;
+    }
+
+    public void setCategoryDTO(CategoryDTO categoryDTO) {
+        this.categoryDTO = categoryDTO;
     }
 
     public Integer getNumberOfRate() {

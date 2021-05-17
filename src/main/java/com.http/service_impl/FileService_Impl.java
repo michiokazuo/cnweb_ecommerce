@@ -18,6 +18,7 @@ public class FileService_Impl implements FileService {
 
     @Override
     public List<String> uploadFiles(Collection<Part> partCollection) throws Exception {
+        if (partCollection == null) return null;
         List<String> listRs = new ArrayList<>();
         Path path = getFolderUpload();
 

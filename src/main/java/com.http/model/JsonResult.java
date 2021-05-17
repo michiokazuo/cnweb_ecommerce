@@ -39,13 +39,9 @@ public class JsonResult {
                 '}';
     }
 
-    public String jsonSuccess(Object data) {
+    public String getResponse(String message, Object data) {
         Gson gson = new GsonBuilder().create();
 //                .setDateFormat("MM-dd-yyyy").create();
-        return gson.toJson(new JsonResult("Success", data));
-    }
-
-    public String jsonFailure(Object data) {
-        return new Gson().toJson(new JsonResult("Fail", data));
+        return gson.toJson(new JsonResult(message, data));
     }
 }

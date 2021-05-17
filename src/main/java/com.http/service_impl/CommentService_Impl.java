@@ -3,10 +3,12 @@ package com.http.service_impl;
 import com.http.config.AppConfig;
 import com.http.dao.CommentDao;
 import com.http.dao_impl.CommentDaoImpl;
+import com.http.dto.ProductDTO;
 import com.http.dto.UserDTO;
 import com.http.model.Comment;
 import com.http.service.CommentService;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -96,7 +98,7 @@ public class CommentService_Impl implements CommentService {
         return false;
     }
 
-    @Override
+    @Override // thinking...
     public boolean deleteByUser(Integer id_user) throws Exception {
         UserDTO userInSysTem = AppConfig.userInSysTem;
         if (AppConfig.checkAdmin(userInSysTem) && id_user != null && id_user > 0)
@@ -111,5 +113,10 @@ public class CommentService_Impl implements CommentService {
                 && AppConfig.checkAdmin(userInSysTem) || (userInSysTem != null && userInSysTem.getId().equals(id_user)))
             return commentDao.updateRateByUser(rate, id_user, id_product, userInSysTem.getEmail(), new Date());
         return false;
+    }
+
+    @Override
+    public ProductDTO getAboutRateOfProduct(Integer id_product) throws SQLException {
+        return id_product != null && id_product > 0 ? commentDao.getAboutRateOfProduct(id_product) : null;
     }
 }
