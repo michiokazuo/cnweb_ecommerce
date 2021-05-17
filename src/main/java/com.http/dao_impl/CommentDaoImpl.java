@@ -136,7 +136,7 @@ public class CommentDaoImpl implements CommentDao {
         preparedStatement.setInt(4, comment.getUserDTO().getId());
         preparedStatement.setDate(5, new Date(comment.getModifyDate().getTime()));
         preparedStatement.setString(6, comment.getModifyBy());
-        preparedStatement.setInt(6, comment.getId());
+        preparedStatement.setInt(7, comment.getId());
 
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
@@ -148,7 +148,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(3, id);
@@ -215,7 +215,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public boolean deleteByProduct(Integer id_product, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE product_id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE product_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(3, id_product);
@@ -230,7 +230,7 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public boolean deleteByUser(Integer id_user, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE user_id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE user_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(2, email);
@@ -277,12 +277,12 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public int countCmtByProduct(Integer id_product) throws SQLException {
-        String sql = "SELECT COUNT(*) NUM FROM " + AppConfig.TABLE_COMMENT + " WHERE product_id = ?";
+        String sql = "SELECT COUNT(*) AS NUM FROM " + AppConfig.TABLE_COMMENT + " WHERE product_id = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
         preparedStatement.setDouble(1, id_product);
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        return resultSet.getInt("NUM");
+        return resultSet.first() ? resultSet.getInt("NUM") : 0;
     }
 }

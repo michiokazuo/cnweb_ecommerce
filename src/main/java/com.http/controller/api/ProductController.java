@@ -1,7 +1,6 @@
 package com.http.controller.api;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.http.dto.ProductDTO;
 import com.http.model.JsonResult;
 import com.http.model.Product;
@@ -20,9 +19,7 @@ import java.util.List;
 public class ProductController extends HttpServlet {
     private final ProductService service = new ProductService_Impl();
     private final JsonResult jsonResult = new JsonResult();
-    private final Gson gson = new GsonBuilder()
-//            .setDateFormat("MM-dd-yyyy")
-            .create();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

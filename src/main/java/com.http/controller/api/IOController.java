@@ -3,8 +3,11 @@ package com.http.controller.api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.http.config.AppConfig;
+import com.http.dao.UserDao;
+import com.http.dao_impl.UserDaoImpl;
 import com.http.dto.UserDTO;
 import com.http.model.JsonResult;
+import com.http.model.Role;
 import com.http.payload.LoginForm;
 import com.http.service.FileService;
 import com.http.service.UserService;
@@ -27,6 +30,7 @@ import java.util.List;
         , maxRequestSize = 1024 * 1024 * 50)
 public class IOController extends HttpServlet {
     private final UserService userService = new UserServiceImpl();
+    private final UserDao userDao = new UserDaoImpl();
     private final FileService fileService = new FileService_Impl();
     private final JsonResult jsonResult = new JsonResult();
     private final Gson gson = new GsonBuilder().create();
@@ -47,6 +51,7 @@ public class IOController extends HttpServlet {
                 AppConfig.userInSysTem = null;
                 code_resp = HttpServletResponse.SC_OK;
                 resp.addCookie(cookie);
+//                resp.sendRedirect("/"); // url-home || url-login
             } else if (pathInfo.indexOf("/get-user-in-system") == 0) {
                 UserDTO user = null;
                 try {
@@ -57,6 +62,17 @@ public class IOController extends HttpServlet {
                     code_resp = HttpServletResponse.SC_BAD_REQUEST;
                 }
                 rs = jsonResult.getResponse("api user: find by id " + code_resp, user);
+
+            } else if (pathInfo.indexOf("/get-role") == 0) {
+                List<Role> roles = null;
+                try {
+                    roles = userDao.getRole();
+                    code_resp = roles != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    code_resp = HttpServletResponse.SC_BAD_REQUEST;
+                }
+                rs = jsonResult.getResponse("api io: get role " + code_resp, roles);
 
             } else {
                 code_resp = HttpServletResponse.SC_NOT_FOUND;
@@ -78,7 +94,7 @@ public class IOController extends HttpServlet {
             code_resp = HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
             rs = jsonResult.getResponse("api io: path not found", null);
         } else {
-            if (pathInfo.indexOf("/insert") == 0) { // thinking...
+            if (pathInfo.indexOf("/log-in") == 0) { // thinking...
                 UserDTO user = null;
                 try {
                     LoginForm loginForm = gson.fromJson(req.getReader(), LoginForm.class);
@@ -87,6 +103,7 @@ public class IOController extends HttpServlet {
                     AppConfig.userInSysTem = user;
                     if (user != null) {
                         Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode(user.getEmail()));
+                        cookie.setMaxAge(0); // remove cookie
                         resp.addCookie(cookie);
                     }
                 } catch (Exception e) {

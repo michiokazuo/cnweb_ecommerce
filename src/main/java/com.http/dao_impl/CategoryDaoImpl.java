@@ -136,7 +136,7 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_CATEGORY
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setDate(1, new Date(modify.getTime()));

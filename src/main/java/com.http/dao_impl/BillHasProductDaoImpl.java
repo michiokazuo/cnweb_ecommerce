@@ -57,7 +57,8 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public BillHasProduct insert(BillHasProduct billHasProduct) throws SQLException {
-        String sql = "INSERT INTO " + AppConfig.TABLE_BILL_HAS_PRODUCT + " VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AppConfig.TABLE_BILL_HAS_PRODUCT
+                + "(bill_id, product_id, quantity, product_price) VALUES(?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(1, billHasProduct.getBillId());

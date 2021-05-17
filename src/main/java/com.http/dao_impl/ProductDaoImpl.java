@@ -99,9 +99,9 @@ public class ProductDaoImpl implements ProductDao {
     public Product insert(Product product) throws SQLException {
         Product new_product = null;
         String sql = "INSERT INTO " + AppConfig.TABLE_PRODUCT + " (name, price, discount, deleted, image, introduction"
-                + ", CPU, display, memory, storage, GPU, battery, weight, operatingSystem, soldOut, guarantee" +
-                ", categoryId, bought, modifyDate, createDate, createBy, modifyBy, others)"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ", CPU, display, memory, storage, GPU, battery, weight, operating_system, sold_out, guarantee"
+                + ", category_id, bought, modify_date, create_date, create_by, modify_by, others)"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, product.getName());
@@ -147,7 +147,7 @@ public class ProductDaoImpl implements ProductDao {
                 .createSqlTwoTableSelect(AppConfig.TABLE_PRODUCT, "category_id", need_product,
                         AppConfig.TABLE_CATEGORY, "id", need_category)
                 + ((need_product || need_category) ? " AND " : " WHERE ")
-                + " ? IS NULL OR" + AppConfig.TABLE_PRODUCT + ".id = ?"
+                + " ? IS NULL OR " + AppConfig.TABLE_PRODUCT + ".id = ?"
                 + " AND ? IS NULL OR " + AppConfig.TABLE_PRODUCT + ".name LIKE ?"
                 + " AND ? IS NULL OR ROUND(" + AppConfig.TABLE_PRODUCT + ".price) = ROUND(?)"
                 + " AND ? IS NULL OR " + AppConfig.TABLE_PRODUCT + ".discount = ?"
@@ -231,8 +231,8 @@ public class ProductDaoImpl implements ProductDao {
         Product update_product = null;
         String sql = "UPDATE " + AppConfig.TABLE_PRODUCT + " SET name = ?, price = ?, discount = ?, image = ?" +
                 ", introduction = ?, CPU = ?, display = ?, memory = ?, storage = ?, GPU = ?, battery = ?, weight = ?" +
-                ", operatingSystem = ?, soldOut = ?, guarantee = ?, categoryId = ?, bought = ?, modifyDate = ?" +
-                ", modifyBy = ?, others = ? WHERE id = ?";
+                ", operating_system = ?, sold_out = ?, guarantee = ?, category_id = ?, bought = ?, modify_date = ?" +
+                ", modify_by = ?, others = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(1, product.getName());
@@ -267,7 +267,7 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_PRODUCT
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setString(2, email);

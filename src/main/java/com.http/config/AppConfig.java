@@ -6,6 +6,8 @@ import com.http.dto.UserDTO;
 import com.http.model.Role;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,7 +15,9 @@ public class AppConfig {
 
     public static UserDTO userInSysTem = null;
 
-    public static final String PATH_SAVE_FILES = "src/main/webapp/resources/files";
+    public static final String PATH_SAVE_FILES
+            = "D:/Eclipse-workspace/TOMCAT/apache-tomcat-9.0.29/webapps";
+
     public final static String SAVE_DIRECTORY = "file-upload";
 
     public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -52,8 +56,8 @@ public class AppConfig {
                 rootTable + "." + rootColumn2 + " = " + referenceTable2 + "." + referenceColumn2
                 + ((!rootHasDelete && !referenceHasDelete1 && !referenceHasDelete2) ? " "
                 : (" WHERE " + (rootHasDelete ? (rootTable + ".deleted = false ") : " ")
-                + (referenceHasDelete1 ? ((rootHasDelete ? "AND " : " ") + referenceTable1 + ".deleted = false") : " ")
-                + (referenceHasDelete2 ? ((rootHasDelete || referenceHasDelete1 ? "AND " : " ")
+                + (referenceHasDelete1 ? ((rootHasDelete ? " AND " : " ") + referenceTable1 + ".deleted = false") : " ")
+                + (referenceHasDelete2 ? ((rootHasDelete || referenceHasDelete1 ? " AND " : " ")
                 + referenceTable2 + ".deleted = false") : "")));
     }
 
@@ -83,5 +87,6 @@ public class AppConfig {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        System.out.println(new Timestamp(new Date().getTime()));
     }
 }

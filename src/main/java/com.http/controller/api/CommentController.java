@@ -20,9 +20,7 @@ import java.util.List;
 public class CommentController extends HttpServlet {
     private final CommentService service = new CommentService_Impl();
     private final JsonResult jsonResult = new JsonResult();
-    private final Gson gson = new GsonBuilder()
-//            .setDateFormat("MM-dd-yyyy")
-            .create();
+    private final Gson gson = new GsonBuilder().create();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -157,10 +155,10 @@ public class CommentController extends HttpServlet {
                 }
                 rs = jsonResult.getResponse("api comment: update " + code_resp, update_comment);
 
-            } else if (pathInfo.indexOf("/update-rate-by-user") == 0) {
+            } else if (pathInfo.indexOf("/rate-by-user") == 0) {
                 boolean update = false;
                 try {
-                    Double rate = Double.valueOf(req.getParameter("rate"));
+                    Double rate = Double.parseDouble(req.getParameter("rate"));
                     Integer id_user = Integer.parseInt(req.getParameter("id_user"));
                     Integer id_product = Integer.parseInt(req.getParameter("id_product"));
                     update = service.updateRateByUser(rate, id_user, id_product);

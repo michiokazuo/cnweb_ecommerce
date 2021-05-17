@@ -38,7 +38,8 @@ public class UserServiceImpl implements UserService {
             user.setCreateDate(date);
             user.setModifyDate(date);
             user.setDeleted(false);
-            user.setPhone(PasswordUtil.encode(user.getPassword()));
+            user.setPassword(PasswordUtil.encode(user.getPassword()));
+            user.setRole(AppConfig.roles.get(AppConfig.USER));
 
             return userDao.insert(user);
         }
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
             user.setModifyDate(date);
             user.setModifyBy(userInSystem.getEmail());
             user.setDeleted(false);
-            user.setPhone(PasswordUtil.encode(user.getPassword()));
+            user.setPassword(PasswordUtil.encode(user.getPassword()));
 
             updatedUser = userDao.update(user);
             if (!oldUser.getEmail().equals(updatedUser.getEmail()))
@@ -89,6 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO login(LoginForm loginForm) throws Exception {
         if (loginForm != null) {
+            loginForm.setPassword(PasswordUtil.encode(loginForm.getPassword()));
             return convert.toDTO(userDao.getUserByEmailAndPassword(loginForm));
         }
 

@@ -87,7 +87,9 @@ public class CommentService_Impl implements CommentService {
 
     @Override
     public List<Comment> getALlByUser(Integer id_user) throws Exception {
-        return id_user != null && id_user > 0 ? commentDao.getALlByUser(id_user) : null;
+        UserDTO userInSysTem = AppConfig.userInSysTem;
+        return userInSysTem != null && id_user != null && id_user.equals(userInSysTem.getId()) && id_user > 0
+                ? commentDao.getALlByUser(id_user) : null;
     }
 
     @Override

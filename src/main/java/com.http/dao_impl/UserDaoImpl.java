@@ -94,8 +94,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User insert(User user) throws SQLException {
         User new_user = null;
-        String sql = "INSERT INTO " + AppConfig.TABLE_USER + " (email, password, name, phone, role, avatar, deleted, job, gender"
-                + ", home_town, workplace, birthday, modify_date, create_date, create_by, modify_by)"
+        String sql = "INSERT INTO " + AppConfig.TABLE_USER + " (email, password, name, phone, role, avatar, deleted, job" +
+                ", gender, home_town, workplace, birthday, modify_date, create_date, create_by, modify_by)"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
@@ -222,7 +222,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
         String sql = "UPDATE " + AppConfig.TABLE_USER
-                + " SET deleted = false, modify_date = ?, modify_by = ? WHERE id = ?";
+                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
 
         PreparedStatement preparedStatement = connection.prepareUpdate(sql);
         preparedStatement.setInt(3, id);
@@ -280,7 +280,7 @@ public class UserDaoImpl implements UserDao {
         String sql = AppConfig
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
-                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? OR " +
                 AppConfig.TABLE_USER + ".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);
@@ -299,7 +299,7 @@ public class UserDaoImpl implements UserDao {
         String sql = AppConfig
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
-                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? AND " +
+                + ((need_user || need_role) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".email = ? OR " +
                 AppConfig.TABLE_USER + ".phone = ?";
 
         PreparedStatement preparedStatement = connection.prepare(sql);

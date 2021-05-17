@@ -1,14 +1,19 @@
 package com.http.controller.api;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.http.config.AppConfig;
+import com.http.convert.Convert;
+import com.http.convert.UserConvert;
+import com.http.dto.UserDTO;
 import com.http.model.JsonResult;
 import com.http.model.User;
 import com.http.service.UserService;
 import com.http.service_impl.UserServiceImpl;
+import com.http.utils.PasswordUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +23,9 @@ import java.util.List;
 @WebServlet(name = "UserController", value = "/api/user/*")
 public class UserController extends HttpServlet {
     private final UserService service = new UserServiceImpl();
+    private final Convert<User, UserDTO> convert = new UserConvert();
     private final JsonResult jsonResult = new JsonResult();
-    private final Gson gson = new GsonBuilder()
-//            .setDateFormat("MM-dd-yyyy")
-            .create();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -82,6 +86,12 @@ public class UserController extends HttpServlet {
                     User user = gson.fromJson(req.getReader(), User.class);
                     new_user = service.insert(user);
                     code_resp = new_user != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
+                    AppConfig.userInSysTem = convert.toDTO(new_user);
+                    if (user != null) {
+                        Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode(user.getEmail()));
+                        cookie.setMaxAge(-1); // until browser shut down
+                        resp.addCookie(cookie);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     code_resp = HttpServletResponse.SC_BAD_REQUEST;
@@ -126,6 +136,12 @@ public class UserController extends HttpServlet {
                     User user = gson.fromJson(req.getReader(), User.class);
                     update_user = service.update(user);
                     code_resp = update_user != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
+                    AppConfig.userInSysTem = convert.toDTO(update_user);
+                    if (user != null) {
+                        Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode(user.getEmail()));
+                        cookie.setMaxAge(-1); // until browser shut down
+                        resp.addCookie(cookie);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     code_resp = HttpServletResponse.SC_BAD_REQUEST;

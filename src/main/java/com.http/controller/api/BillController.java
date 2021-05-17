@@ -19,9 +19,7 @@ import java.util.List;
 public class BillController extends HttpServlet {
     private final BillService service = new BillService_Impl();
     private final JsonResult jsonResult = new JsonResult();
-    private final Gson gson = new GsonBuilder()
-//            .setDateFormat("MM-dd-yyyy")
-            .create();
+    private final Gson gson = new GsonBuilder().create();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -100,17 +98,17 @@ public class BillController extends HttpServlet {
                 }
                 rs = jsonResult.getResponse("api bill: insert " + code_resp, new_bill);
 
-            } else if (pathInfo.indexOf("/search") == 0) {
-                List<BillDTO> billList = null;
+            } else if (pathInfo.indexOf("/accept") == 0) {
+                boolean accept = false;
                 try {
-                    BillDTO bill = gson.fromJson(req.getReader(), BillDTO.class);
-                    billList = service.search(bill);
-                    code_resp = billList != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
+                    Integer id = Integer.parseInt(req.getParameter("id"));
+                    accept = service.acceptBill(id);
+                    code_resp = accept ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
                 } catch (Exception e) {
                     e.printStackTrace();
                     code_resp = HttpServletResponse.SC_BAD_REQUEST;
                 }
-                rs = jsonResult.getResponse("api bill: search " + code_resp, billList);
+                rs = jsonResult.getResponse("api bill: accept bill " + code_resp, accept);
 
             } else {
                 code_resp = HttpServletResponse.SC_NOT_FOUND;
