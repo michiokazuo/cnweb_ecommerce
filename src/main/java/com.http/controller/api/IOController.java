@@ -98,12 +98,12 @@ public class IOController extends HttpServlet {
                 UserDTO user = null;
                 try {
                     Cookie[] cookies = req.getCookies();
-                    boolean check = false;
+                    boolean check = true;
                     code_resp = HttpServletResponse.SC_UNAUTHORIZED;
                     if (cookies != null) {
                         for (Cookie cookie : cookies) {
                             if (cookie.getName().equals("login-cookie") && cookie.getMaxAge() != 0) {
-                                check = true;
+                                check = false;
                                 break;
                             }
                         }
