@@ -47,7 +47,7 @@ public class IOController extends HttpServlet {
         } else {
             if (pathInfo.indexOf("/log-out") == 0) {
                 Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode("log-out"));
-                cookie.setMaxAge(-1);
+                cookie.setMaxAge(0);// remove cookie
                 AppConfig.userInSysTem = null;
                 code_resp = HttpServletResponse.SC_OK;
                 resp.addCookie(cookie);
@@ -97,14 +97,28 @@ public class IOController extends HttpServlet {
             if (pathInfo.indexOf("/log-in") == 0) { // thinking...
                 UserDTO user = null;
                 try {
-                    LoginForm loginForm = gson.fromJson(req.getReader(), LoginForm.class);
-                    user = userService.login(loginForm);
-                    code_resp = user != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
-                    AppConfig.userInSysTem = user;
-                    if (user != null) {
-                        Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode(user.getEmail()));
-                        cookie.setMaxAge(0); // remove cookie
-                        resp.addCookie(cookie);
+                    Cookie[] cookies = req.getCookies();
+                    boolean check = false;
+                    code_resp = HttpServletResponse.SC_UNAUTHORIZED;
+                    if (cookies != null) {
+                        for (Cookie cookie : cookies) {
+                            if (cookie.getName().equals("login-cookie") && cookie.getMaxAge() != 0) {
+                                check = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(check) {
+                        LoginForm loginForm = gson.fromJson(req.getReader(), LoginForm.class);
+                        user = userService.login(loginForm);
+                        code_resp = user != null ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NO_CONTENT;
+                        AppConfig.userInSysTem = user;
+                        if (user != null) {
+                            Cookie cookie = new Cookie("login-cookie", PasswordUtil.encode(user.getEmail()));
+                            cookie.setMaxAge(-1);
+                            resp.addCookie(cookie);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
