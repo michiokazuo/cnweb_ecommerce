@@ -135,7 +135,7 @@ public class UserDaoImpl implements UserDao {
                 .createSqlTwoTableSelect(AppConfig.TABLE_USER, "role", need_user,
                         AppConfig.TABLE_ROLE, "id", need_role)
                 + ((need_user || need_role) ? " AND " : " WHERE ")
-                + " ? IS NULL OR" + AppConfig.TABLE_USER + ".id = ?"
+                + " ? IS NULL OR " + AppConfig.TABLE_USER + ".id = ?"
                 + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".name LIKE ?"
                 + " AND ? IS NULL OR " + AppConfig.TABLE_USER + ".email LIKE ?"
                 + " AND " + AppConfig.TABLE_ROLE + ".id = ?"
