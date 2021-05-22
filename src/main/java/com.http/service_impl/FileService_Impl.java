@@ -21,6 +21,7 @@ public class FileService_Impl implements FileService {
         if (partCollection == null) return null;
         List<String> listRs = new ArrayList<>();
         Path path = getFolderUpload();
+        String root = AppConfig.ROOT_BE;
 
         try {
             String saveFile = path + "";
@@ -32,7 +33,7 @@ public class FileService_Impl implements FileService {
                     String filePath = saveFile + File.separator + fileName;
                     System.out.println("Write File: " + filePath);
                     part.write(filePath);
-                    listRs.add("../" + SAVE_DIRECTORY + "/"
+                    listRs.add(root + "/" + SAVE_DIRECTORY + "/"
                             + saveFile.substring(saveFile.lastIndexOf(File.separator) + 1) + "/" + fileName);
                 }
             }

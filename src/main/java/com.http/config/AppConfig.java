@@ -16,8 +16,9 @@ public class AppConfig {
     public static UserDTO userInSysTem = null;
 
     public static final String PATH_SAVE_FILES
-            = "D:/Eclipse-workspace/TOMCAT/apache-tomcat-9.0.29/webapps";
+            = "D:/Eclipse-workspace/TOMCAT/apache-tomcat-9.0.29/webapps"; // các idol sửa lại link theo máy các idol
 
+    public final static String ROOT_BE = "http://localhost:8080";
     public final static String SAVE_DIRECTORY = "file-upload";
 
     public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
