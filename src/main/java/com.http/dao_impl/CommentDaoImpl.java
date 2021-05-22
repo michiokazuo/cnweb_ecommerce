@@ -5,7 +5,9 @@ import com.http.dao.CommentDao;
 import com.http.dto.ProductDTO;
 import com.http.dto.UserDTO;
 import com.http.model.Comment;
-import com.http.model.MyConnection;
+import com.http.service_database.ContentValues;
+import com.http.service_database.DatabaseService;
+import com.http.service_database.SQLBuilder;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -15,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDaoImpl implements CommentDao {
-    private final MyConnection connection = new MyConnection();
 
     @Override
     public Comment getObject(ResultSet resultSet) throws SQLException {
@@ -57,32 +58,29 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public List<Comment> findAll() throws SQLException {
-        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
-                "user_id", true,
-                AppConfig.TABLE_PRODUCT, "id", true,
-                AppConfig.TABLE_USER, "id", true);
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_COMMENT)
+                .addTable(AppConfig.TABLE_PRODUCT, "id", AppConfig.TABLE_COMMENT, "product_id")
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_COMMENT, "user_id")
+                .build();
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        String whereClause = "comment.deleted = false  AND product.deleted = false AND user.deleted = false";
+
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, null);
 
         return getList(resultSet);
     }
 
     @Override
     public Comment findById(Integer id) throws SQLException {
-        boolean need_cmt = true;
-        boolean need_product = true;
-        boolean need_user = true;
-        Comment comment = null;
-        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
-                "user_id", need_cmt,
-                AppConfig.TABLE_PRODUCT, "id", need_product,
-                AppConfig.TABLE_USER, "id", need_user)
-                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_COMMENT + ".id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        Comment comment = null;
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_COMMENT)
+                .addTable(AppConfig.TABLE_PRODUCT, "id", AppConfig.TABLE_COMMENT, "product_id")
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_COMMENT, "user_id")
+                .build();
+        String whereClause = "comment.deleted = false  AND product.deleted = false AND user.deleted = false AND " + AppConfig.TABLE_COMMENT + ".id = ?";
+
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id});
 
         if (resultSet.first()) {
             comment = getObject(resultSet);
@@ -94,20 +92,19 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public Comment insert(Comment comment) throws SQLException {
         Comment new_comment = null;
-        String sql = "INSERT INTO " + AppConfig.TABLE_COMMENT + " (comment, rate, product_id, user_id, deleted" +
-                ", modify_date, create_date, create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, comment.getComment());
-        preparedStatement.setDouble(2, comment.getRate());
-        preparedStatement.setInt(3, comment.getProductDTO().getId());
-        preparedStatement.setInt(4, comment.getUserDTO().getId());
-        preparedStatement.setBoolean(5, comment.getDeleted());
-        preparedStatement.setDate(6, new Date(comment.getModifyDate().getTime()));
-        preparedStatement.setDate(7, new Date(comment.getCreateDate().getTime()));
-        preparedStatement.setString(8, comment.getCreateBy());
-        preparedStatement.setString(9, comment.getModifyBy());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("comment", comment.getComment());
+        contentValues.put("rate", comment.getRate());
+        contentValues.put("product_id", comment.getProductDTO().getId());
+        contentValues.put("user_id", comment.getUserDTO().getId());
+        contentValues.put("deleted", comment.getDeleted());
+        contentValues.put("modify_date", new Date(comment.getModifyDate().getTime()));
+        contentValues.put("create_date", new Date(comment.getCreateDate().getTime()));
+        contentValues.put("create_by", comment.getCreateBy());
+        contentValues.put("modify_by", comment.getModifyBy());
 
+        PreparedStatement preparedStatement = DatabaseService.getInstance().getPreparedStatementInsert(AppConfig.TABLE_COMMENT, contentValues);
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -126,19 +123,16 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public Comment update(Comment comment) throws SQLException {
         Comment update_comment = null;
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET comment = ?, rate = ?, product_id = ?, user_id = ?" +
-                ", modify_date = ?, modify_by = ? WHERE id = ?";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, comment.getComment());
-        preparedStatement.setDouble(2, comment.getRate());
-        preparedStatement.setInt(3, comment.getProductDTO().getId());
-        preparedStatement.setInt(4, comment.getUserDTO().getId());
-        preparedStatement.setDate(5, new Date(comment.getModifyDate().getTime()));
-        preparedStatement.setString(6, comment.getModifyBy());
-        preparedStatement.setInt(7, comment.getId());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("comment", comment.getComment());
+        contentValues.put("rate", comment.getRate());
+        contentValues.put("product_id", comment.getProductDTO().getId());
+        contentValues.put("user_id", comment.getUserDTO().getId());
+        contentValues.put("modify_date", new Date(comment.getModifyDate().getTime()));
+        contentValues.put("modify_by", comment.getModifyBy());
 
-        int rs = preparedStatement.executeUpdate();
+        int rs = DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, "id = ?", new Object[] {comment.getId()});
         if (rs > 0) {
             update_comment = findById(comment.getId());
         }
@@ -147,15 +141,12 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("deleted", true);
+        contentValues.put("modify_by", email);
+        contentValues.put("modify_date", new Date(modify.getTime()));
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(3, id);
-        preparedStatement.setString(2, email);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, "id = ?", new Object[] {id});
 
         return delete >= 0;
     }
@@ -167,77 +158,58 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT + " SET " + column + " = ?  WHERE " + column + " = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, newEmail);
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, newEmail);
-        preparedStatement.setString(2, oldEmail);
-
-        preparedStatement.executeUpdate();
+        DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, column + " = ? ", new Object[] {oldEmail});
     }
 
     @Override
     public List<Comment> getAllByProduct(Integer id_product) throws SQLException {
-        boolean need_cmt = true;
-        boolean need_product = true;
-        boolean need_user = true;
-        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
-                "user_id", need_cmt,
-                AppConfig.TABLE_PRODUCT, "id", need_product,
-                AppConfig.TABLE_USER, "id", need_user)
-                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_PRODUCT + ".id = ?";
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_COMMENT)
+                .addTable(AppConfig.TABLE_PRODUCT, "id", AppConfig.TABLE_COMMENT, "product_id")
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_COMMENT, "user_id")
+                .build();
+        String whereClause = "comment.deleted = false  AND product.deleted = false AND user.deleted = false AND " + AppConfig.TABLE_PRODUCT + ".id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id_product);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id_product});
 
         return getList(resultSet);
     }
 
     @Override
     public List<Comment> getALlByUser(Integer id_user) throws SQLException {
-        boolean need_cmt = true;
-        boolean need_product = true;
-        boolean need_user = true;
-        String sql = AppConfig.createSqlThreeTableSelect(AppConfig.TABLE_COMMENT, "product_id",
-                "user_id", need_cmt,
-                AppConfig.TABLE_PRODUCT, "id", need_product,
-                AppConfig.TABLE_USER, "id", need_user)
-                + ((need_cmt || need_product || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".id = ?";
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_COMMENT)
+                .addTable(AppConfig.TABLE_PRODUCT, "id", AppConfig.TABLE_COMMENT, "product_id")
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_COMMENT, "user_id")
+                .build();
+        String whereClause = "comment.deleted = false  AND product.deleted = false AND user.deleted = false AND " + AppConfig.TABLE_USER + ".id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id_user);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id_user});
 
         return getList(resultSet);
     }
 
     @Override
     public boolean deleteByProduct(Integer id_product, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE product_id = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("deleted", true);
+        contentValues.put("modify_by", email);
+        contentValues.put("modify_date", new Date(modify.getTime()));
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(3, id_product);
-        preparedStatement.setString(2, email);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, "product_id = ?", new Object[] {id_product});
 
         return delete >= 0;
     }
 
     @Override
     public boolean deleteByUser(Integer id_user, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE user_id = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("deleted", true);
+        contentValues.put("modify_by", email);
+        contentValues.put("modify_date", new Date(modify.getTime()));
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(2, email);
-        preparedStatement.setInt(3, id_user);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, "user_id = ?", new Object[] {id_user});
 
         return delete >= 0;
     }
@@ -245,29 +217,22 @@ public class CommentDaoImpl implements CommentDao {
     @Override
     public boolean updateRateByUser(Double rate, Integer id_user, Integer id_product, String email
             , java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_COMMENT
-                + " SET rate = ?, modify_date = ?, modify_by = ? WHERE user_id = ? AND product_id = ?";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setDouble(1, rate);
-        preparedStatement.setString(3, email);
-        preparedStatement.setDate(2, new Date(modify.getTime()));
-        preparedStatement.setInt(4, id_user);
-        preparedStatement.setInt(5, id_product);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("rate", rate);
+        contentValues.put("modify_by", email);
+        contentValues.put("modify_date", new Date(modify.getTime()));
 
-        int update = preparedStatement.executeUpdate();
+        int update = DatabaseService.getInstance().update(AppConfig.TABLE_COMMENT, contentValues, "user_id = ? AND product_id = ?", new Object[] {id_user, id_product});
 
         return update >= 0;
     }
 
     @Override
     public ProductDTO getAboutRateOfProduct(Integer id_product) throws SQLException {
-        String sql = "SELECT COUNT(*) NUM, AVG(rate) rate FROM " + AppConfig.TABLE_COMMENT
-                + " WHERE product_id = ? GROUP BY user_id";
-
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setDouble(1, id_product);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(AppConfig.TABLE_COMMENT, new String[] {"COUNT(*) NUM", "AVG(rate) rate"},
+                "product_id = ?", new Object[] {id_product},
+                new String[] {"user_id"});
 
         if (resultSet.first()) {
             return new ProductDTO(resultSet.getInt("NUM"), resultSet.getDouble("rate"));
@@ -277,11 +242,7 @@ public class CommentDaoImpl implements CommentDao {
 
     @Override
     public int countCmtByProduct(Integer id_product) throws SQLException {
-        String sql = "SELECT COUNT(*) AS NUM FROM " + AppConfig.TABLE_COMMENT + " WHERE product_id = ?";
-
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setDouble(1, id_product);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(AppConfig.TABLE_COMMENT, new String[] {"COUNT(*) AS NUM"}, "product_id = ?", new Object[] {id_product});
 
         return resultSet.first() ? resultSet.getInt("NUM") : 0;
     }

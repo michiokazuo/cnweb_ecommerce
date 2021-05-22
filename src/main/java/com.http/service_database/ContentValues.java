@@ -10,7 +10,7 @@ public class ContentValues {
         mList = new ArrayList<>();
     }
 
-    public void put(String key, String value) { mList.add(new Pair(key, value)); }
+    public void put(String key, Object value) { mList.add(new Pair(key, value)); }
 
     public void putAll(ContentValues other) { mList.addAll(other.mList); }
 
@@ -20,8 +20,8 @@ public class ContentValues {
 
     public boolean isEmpty() { return mList.isEmpty(); }
 
-    public ArrayList<String> getValues() {
-        ArrayList<String> rs = new ArrayList<>();
+    public ArrayList<Object> getValues() {
+        ArrayList<Object> rs = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
             rs.add(mList.get(i).value);
         }
@@ -29,7 +29,7 @@ public class ContentValues {
         return rs;
     }
 
-    public String getValue(int index) {
+    public Object getValue(int index) {
         if (index < 0 || index >= size()) return null;
         return mList.get(index).value;
     }
@@ -65,7 +65,7 @@ public class ContentValues {
         }
 
         for (int i = 0; i < mSize - 1; i++) {
-            sb.append(mList.get(i).key).append(",");
+            sb.append(mList.get(i).key).append(", ");
         }
         sb.append(mList.get(mSize - 1).key);
         return sb.toString();
@@ -81,7 +81,7 @@ public class ContentValues {
         }
 
         for (int i = 0; i < mSize - 1; i++) {
-            sb.append("?,");
+            sb.append("?, ");
         }
         sb.append("?");
         return sb.toString();
@@ -89,9 +89,9 @@ public class ContentValues {
 
     private class Pair {
         String key;
-        String value;
+        Object value;
 
-        Pair(String key, String value)  {
+        Pair(String key, Object value)  {
             this.key = key;
             this.value = value;
         }

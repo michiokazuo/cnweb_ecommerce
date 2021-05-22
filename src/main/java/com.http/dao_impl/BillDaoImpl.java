@@ -4,7 +4,9 @@ import com.http.config.AppConfig;
 import com.http.dao.BillDao;
 import com.http.dto.UserDTO;
 import com.http.model.Bill;
-import com.http.model.MyConnection;
+import com.http.service_database.ContentValues;
+import com.http.service_database.DatabaseService;
+import com.http.service_database.SQLBuilder;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BillDaoImpl implements BillDao {
-    private final MyConnection connection = new MyConnection();
 
     @Override
     public Bill getObject(ResultSet resultSet) throws SQLException {
@@ -52,29 +53,25 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public List<Bill> findAll() throws SQLException {
-        String sql = AppConfig
-                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", true,
-                        AppConfig.TABLE_USER, "id", false);
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_BILL)
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_BILL, "id_user")
+                .build();
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, "bill.deleted = false", null);
 
         return getList(resultSet);
     }
 
     @Override
     public Bill findById(Integer id) throws SQLException {
-        boolean need_bill = true;
-        boolean need_user = false;
         Bill bill = null;
-        String sql = AppConfig
-                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", need_bill,
-                        AppConfig.TABLE_USER, "id", need_user)
-                + ((need_user || need_bill) ? " AND " : " WHERE ") + AppConfig.TABLE_BILL + ".id = ?";
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_BILL)
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_BILL, "id_user")
+                .build();
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        String whereClause = "bill.deleted = false AND bill.id = ?";
+
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id});
 
         if (resultSet.first()) {
             bill = getObject(resultSet);
@@ -86,19 +83,19 @@ public class BillDaoImpl implements BillDao {
     @Override
     public Bill insert(Bill bill) throws SQLException {
         Bill new_bill = null;
-        String sql = "INSERT INTO " + AppConfig.TABLE_BILL + " (id_user, address, status, deleted, modify_date" +
-                ", create_date, create_by, modify_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, bill.getUserDTO().getId());
-        preparedStatement.setString(2, bill.getAddress());
-        preparedStatement.setInt(3, bill.getStatus());
-        preparedStatement.setBoolean(4, bill.getDeleted());
-        preparedStatement.setDate(5, new Date(bill.getModifyDate().getTime()));
-        preparedStatement.setDate(6, new Date(bill.getCreateDate().getTime()));
-        preparedStatement.setString(7, bill.getCreateBy());
-        preparedStatement.setString(8, bill.getModifyBy());
+        ContentValues contentValues = new ContentValues();
 
+        contentValues.put("id_user", bill.getUserDTO().getId());
+        contentValues.put("address", bill.getAddress());
+        contentValues.put("status", bill.getStatus());
+        contentValues.put("deleted", bill.getDeleted());
+        contentValues.put("modify_date", new Date(bill.getModifyDate().getTime()));
+        contentValues.put("create_date", new Date(bill.getCreateDate().getTime()));
+        contentValues.put("create_by", bill.getCreateBy());
+        contentValues.put("modify_by", bill.getModifyBy());
+
+        PreparedStatement preparedStatement = DatabaseService.getInstance().getPreparedStatementInsert(AppConfig.TABLE_BILL, contentValues);
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -121,15 +118,13 @@ public class BillDaoImpl implements BillDao {
 
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_BILL
-                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
+        ContentValues contentValues = new ContentValues();
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-        preparedStatement.setInt(3, id);
-        preparedStatement.setString(2, email);
+        contentValues.put("deleted", true);
+        contentValues.put("modify_date", new Date(modify.getTime()));
+        contentValues.put("modify_by", email);
 
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_BILL, contentValues, "id = ?", new Object[] {id});
 
         return delete >= 0;
     }
@@ -141,43 +136,33 @@ public class BillDaoImpl implements BillDao {
     }
 
     private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_BILL + " SET " + column + " = ?  WHERE " + column + " = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, newEmail);
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, newEmail);
-        preparedStatement.setString(2, oldEmail);
-
-        preparedStatement.executeUpdate();
+        DatabaseService.getInstance().update(AppConfig.TABLE_BILL, contentValues, column + " = ? ", new Object[] {oldEmail});
     }
 
     @Override
     public List<Bill> getAllBillByUser(Integer id) throws SQLException {
-        boolean need_bill = true;
-        boolean need_user = false;
-        String sql = AppConfig
-                .createSqlTwoTableSelect(AppConfig.TABLE_BILL, "id_user", need_bill,
-                        AppConfig.TABLE_USER, "id", need_user)
-                + ((need_bill || need_user) ? " AND " : " WHERE ") + AppConfig.TABLE_USER + ".id = ?";
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_BILL)
+                .addTable(AppConfig.TABLE_USER, "id", AppConfig.TABLE_BILL, "id_user")
+                .build();
+        String whereClause = "bill.deleted = false AND " + AppConfig.TABLE_USER + ".id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id);
-
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id});
 
         return getList(resultSet);
     }
 
     @Override
     public boolean acceptBill(Integer id, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_BILL
-                + " SET status = 1, modify_date = ?, modify_by = ? WHERE id = ? AND deleted = false";
+        ContentValues contentValues = new ContentValues();
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-        preparedStatement.setInt(3, id);
-        preparedStatement.setString(2, email);
+        contentValues.put("status", 1);
+        contentValues.put("modify_date", new Date(modify.getTime()));
+        contentValues.put("modify_by", email);
 
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_BILL, contentValues, "id = ? AND deleted = false", new Object[] {id});
 
         return delete >= 0;
     }

@@ -1,17 +1,18 @@
 package com.http.service_database;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SQLBuilder {
-    public static String buildSelectSQL(String table, String[] listCol, String whereClause, String[] whereArgs) {
+    public static String buildSelectSQL(String table, String[] listCol, String whereClause, Object[] whereArgs) {
         StringBuilder sql;
         if (listCol == null) {
             sql = new StringBuilder("SELECT * FROM " + table);
         } else {
             sql = new StringBuilder("SELECT ");
             for (int i = 0; i < listCol.length - 1; i++) {
-                sql.append(listCol[i]).append(",");
+                sql.append(listCol[i]).append(", ");
             }
             sql.append(listCol[listCol.length - 1]);
             sql.append(" FROM ").append(table);
@@ -24,7 +25,7 @@ public class SQLBuilder {
         return sql.toString();
     }
 
-    public static String buildSelectSQL(String table, String[] listCol, String whereClause, String[] whereArgs, String[] groupByArgs) {
+    public static String buildSelectSQL(String table, String[] listCol, String whereClause, Object[] whereArgs, String[] groupByArgs) {
         StringBuilder sql = new StringBuilder(buildSelectSQL(table, listCol, whereClause, whereArgs));
 
         if (groupByArgs == null) return sql.toString();
@@ -38,7 +39,7 @@ public class SQLBuilder {
         return sql.toString();
     }
 
-    public static String buildSelectSQL(String table, String[] listCol, String whereClause, String[] whereArgs, String[] groupByArgs, String havingClause, String[] havingArgs) {
+    public static String buildSelectSQL(String table, String[] listCol, String whereClause, Object[] whereArgs, String[] groupByArgs, String havingClause, Object[] havingArgs) {
         StringBuilder sql = new StringBuilder(buildSelectSQL(table, listCol, whereClause, whereArgs, groupByArgs));
 
         if (havingClause == null) return sql.toString();
@@ -48,7 +49,7 @@ public class SQLBuilder {
         return sql.toString();
     }
 
-    public static String buildSelectSQL(String table, String[] listCol, String whereClause, String[] whereArgs, String[] groupByArgs, String havingClause, String[] havingArgs, String[] orderByArgs, boolean isIncrement) {
+    public static String buildSelectSQL(String table, String[] listCol, String whereClause, Object[] whereArgs, String[] groupByArgs, String havingClause, Object[] havingArgs, String[] orderByArgs, boolean isIncrement) {
         StringBuilder sql = new StringBuilder(buildSelectSQL(table, listCol, whereClause, whereArgs, groupByArgs, havingClause, havingArgs));
 
         if (orderByArgs == null) return sql.toString();
@@ -67,21 +68,31 @@ public class SQLBuilder {
         return sql.toString();
     }
 
-    public static void buildPreparedStatement(PreparedStatement statement, String sql, String[] param) throws SQLException {
+    public static void buildPreparedStatement(PreparedStatement statement, String sql, Object[] param) throws SQLException {
         if (param == null) return;
         for (int i = 1; i <= param.length; i++) {
-            statement.setString(i, param[i - 1]);
+            if (param[i - 1] instanceof String) {
+                statement.setString(i, (String) param[i - 1]);
+            } else if (param[i - 1] instanceof Integer) {
+                statement.setInt(i, (Integer) param[i - 1]);
+            } else if (param[i - 1] instanceof Date) {
+                statement.setDate(i, (Date) param[i - 1]);
+            } else if (param[i - 1] instanceof Boolean) {
+                statement.setBoolean(i, (Boolean) param[i - 1]);
+            } else {
+                statement.setString(i, param[i - 1].toString());
+            }
         }
     }
 
-    static class BuildTable {
+    public static class BuildTable {
         String sql;
         public BuildTable(String rootTable) {
             this.sql = rootTable;
         }
 
         public BuildTable addTable(String joinTable, String refJoinTable, String table, String refTable) {
-            sql += " JOIN " + joinTable + " ON " + joinTable + "." + refJoinTable + " LIKE " + table + "." + refJoinTable + " ";
+            sql += " JOIN " + joinTable + " ON " + joinTable + "." + refJoinTable + " LIKE " + table + "." + refTable + " ";
             return this;
         }
 

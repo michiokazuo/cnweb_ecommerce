@@ -3,7 +3,8 @@ package com.http.dao_impl;
 import com.http.config.AppConfig;
 import com.http.dao.CategoryDao;
 import com.http.model.Category;
-import com.http.model.MyConnection;
+import com.http.service_database.ContentValues;
+import com.http.service_database.DatabaseService;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDaoImpl implements CategoryDao {
-    private final MyConnection connection = new MyConnection();
 
     @Override
     public Category getObject(ResultSet resultSet) throws SQLException {
@@ -42,10 +42,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public List<Category> findAll() throws SQLException {
-        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false";
-
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(AppConfig.TABLE_CATEGORY, null, "deleted = false", null);
 
         return getList(resultSet);
     }
@@ -53,11 +50,9 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category findById(Integer id) throws SQLException {
         Category category = null;
-        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false AND id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        String whereClause = "deleted = false AND id = ?";
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(AppConfig.TABLE_CATEGORY, null, whereClause, new Object[] {id});
 
         if (resultSet.first()) {
             category = getObject(resultSet);
@@ -69,17 +64,16 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category insert(Category category) throws SQLException {
         Category new_category = null;
-        String sql = "INSERT INTO " + AppConfig.TABLE_CATEGORY + " (name, deleted, modify_date, create_date, create_by"
-                + ", modify_by) VALUES (?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, category.getName());
-        preparedStatement.setBoolean(2, category.getDeleted());
-        preparedStatement.setDate(3, new Date(category.getModifyDate().getTime()));
-        preparedStatement.setDate(4, new Date(category.getCreateDate().getTime()));
-        preparedStatement.setString(5, category.getCreateBy());
-        preparedStatement.setString(6, category.getModifyBy());
+        ContentValues contentValues = new ContentValues();
 
+        contentValues.put("name", category.getName());
+        contentValues.put("deleted", category.getDeleted());
+        contentValues.put("modify_date", new Date(category.getModifyDate().getTime()));
+        contentValues.put("create_date", new Date(category.getCreateDate().getTime()));
+        contentValues.put("create_by", category.getCreateBy());
+        contentValues.put("modify_by", category.getModifyBy());
+        PreparedStatement preparedStatement = DatabaseService.getInstance().getPreparedStatementInsert(AppConfig.TABLE_CATEGORY, contentValues);
         int rs = preparedStatement.executeUpdate();
         if (rs > 0) {
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -93,23 +87,22 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public List<Category> search(Category category) throws SQLException {
-        String sql = "SELECT * FROM " + AppConfig.TABLE_CATEGORY + " WHERE deleted = false AND ? IS NULL OR name LIKE ?"
-                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_CATEGORY + ".create_date) >= ?)"
+
+        String whereClause = "deleted = false "
+                + " AND (? IS NULL OR name LIKE ?) "
+                + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_CATEGORY + ".create_date) >= ?) "
                 + " AND (? IS NULL OR DATE(" + AppConfig.TABLE_CATEGORY + ".create_date) <= ?) ";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setString(1, category.getName());
-        preparedStatement.setString(2, "%" + category.getName() + "%");
-        preparedStatement.setDate(3, category.getCreateDate() == null ? null
-                : new Date(category.getCreateDate().getTime()));
-        preparedStatement.setDate(4, category.getCreateDate() == null ? null
-                : new Date(category.getCreateDate().getTime()));
-        preparedStatement.setDate(5, category.getCreateDate() == null ? null
-                : new Date(category.getCreateDate().getTime()));
-        preparedStatement.setDate(6, category.getCreateDate() == null ? null
-                : new Date(category.getCreateDate().getTime()));
+        Object[] whereArgs = new Object[] {
+                category.getName(),
+                "%" + category.getName() + "%",
+                category.getCreateDate() == null ? null : new Date(category.getCreateDate().getTime()),
+                category.getCreateDate() == null ? null : new Date(category.getCreateDate().getTime()),
+                category.getCreateDate() == null ? null : new Date(category.getCreateDate().getTime()),
+                category.getCreateDate() == null ? null : new Date(category.getCreateDate().getTime())
+        };
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(AppConfig.TABLE_CATEGORY, null, whereClause, whereArgs);
 
         return getList(resultSet);
     }
@@ -117,15 +110,14 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category update(Category category) throws SQLException {
         Category update_category = null;
-        String sql = "UPDATE " + AppConfig.TABLE_CATEGORY + " SET name = ?, modify_date = ?, modify_by = ? WHERE id = ?";
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, category.getName());
-        preparedStatement.setDate(2, new Date(category.getModifyDate().getTime()));
-        preparedStatement.setString(3, category.getModifyBy());
-        preparedStatement.setInt(4, category.getId());
+        ContentValues contentValues = new ContentValues();
 
-        int update = preparedStatement.executeUpdate();
+        contentValues.put("name", category.getName());
+        contentValues.put("modify_date", new Date(category.getModifyDate().getTime()));
+        contentValues.put("modify_by", category.getModifyBy());
+
+        int update = DatabaseService.getInstance().update(AppConfig.TABLE_CATEGORY, contentValues, "id = ?", new Object[] {category.getId()});
         if (update > 0) {
             update_category = findById(category.getId());
         }
@@ -135,15 +127,13 @@ public class CategoryDaoImpl implements CategoryDao {
 
     @Override
     public boolean delete(Integer id, String email, java.util.Date modify) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_CATEGORY
-                + " SET deleted = true, modify_date = ?, modify_by = ? WHERE id = ?";
+        ContentValues contentValues = new ContentValues();
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setDate(1, new Date(modify.getTime()));
-        preparedStatement.setString(2, email);
-        preparedStatement.setInt(3, id);
+        contentValues.put("deleted", true);
+        contentValues.put("modify_date", new Date(modify.getTime()));
+        contentValues.put("modify_by", email);
 
-        int delete = preparedStatement.executeUpdate();
+        int delete = DatabaseService.getInstance().update(AppConfig.TABLE_CATEGORY, contentValues, "id = ?", new Object[] {id});
 
         return delete >= 0;
     }
@@ -155,12 +145,9 @@ public class CategoryDaoImpl implements CategoryDao {
     }
 
     private void updateBy(String oldEmail, String newEmail, String column) throws SQLException {
-        String sql = "UPDATE " + AppConfig.TABLE_CATEGORY + " SET " + column + " = ?  WHERE " + column + " = ?";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, newEmail);
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setString(1, newEmail);
-        preparedStatement.setString(2, oldEmail);
-
-        preparedStatement.executeUpdate();
+        DatabaseService.getInstance().update(AppConfig.TABLE_CATEGORY, contentValues, column + " = ? ", new Object[] {oldEmail});
     }
 }

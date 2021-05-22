@@ -4,9 +4,11 @@ import com.http.config.AppConfig;
 import com.http.dao.BillHasProductDao;
 import com.http.dto.ProductDTO;
 import com.http.model.BillHasProduct;
-import com.http.model.MyConnection;
 
-import java.sql.PreparedStatement;
+import com.http.service_database.ContentValues;
+import com.http.service_database.DatabaseService;
+import com.http.service_database.SQLBuilder;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 public class BillHasProductDaoImpl implements BillHasProductDao {
-    private final MyConnection connection = new MyConnection();
 
     @Override
     public BillHasProduct getObject(ResultSet resultSet) throws SQLException {
@@ -57,17 +58,14 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public BillHasProduct insert(BillHasProduct billHasProduct) throws SQLException {
-        String sql = "INSERT INTO " + AppConfig.TABLE_BILL_HAS_PRODUCT
-                + "(bill_id, product_id, quantity, product_price) VALUES(?, ?, ?, ?)";
+        ContentValues contentValues = new ContentValues();
 
-        PreparedStatement preparedStatement = connection.prepareUpdate(sql);
-        preparedStatement.setInt(1, billHasProduct.getBillId());
-        preparedStatement.setInt(2, billHasProduct.getProductDTO().getId());
-        preparedStatement.setInt(3, billHasProduct.getQuantity());
-        preparedStatement.setDouble(4, billHasProduct.getProductPrice());
+        contentValues.put("bill_id", billHasProduct.getBillId());
+        contentValues.put("product_id", billHasProduct.getProductDTO().getId());
+        contentValues.put("quantity", billHasProduct.getQuantity());
+        contentValues.put("product_price", billHasProduct.getProductPrice());
 
-        preparedStatement.executeUpdate();
-
+        DatabaseService.getInstance().insert(AppConfig.TABLE_BILL_HAS_PRODUCT, contentValues);
         return null;
     }
 
@@ -98,17 +96,12 @@ public class BillHasProductDaoImpl implements BillHasProductDao {
 
     @Override
     public List<BillHasProduct> getListByBill(Integer id_bill) throws SQLException {
-        boolean need_bill_has_product = false;
-        boolean need_product = false;
-        String sql = AppConfig.createSqlTwoTableSelect(
-                AppConfig.TABLE_BILL_HAS_PRODUCT, "product_id", need_bill_has_product,
-                AppConfig.TABLE_PRODUCT, "id", need_product)
-                + ((need_bill_has_product || need_product) ? " AND " : " WHERE ")
-                + AppConfig.TABLE_BILL_HAS_PRODUCT + ".bill_id = ?";
+        String table = new SQLBuilder.BuildTable(AppConfig.TABLE_BILL_HAS_PRODUCT)
+                .addTable(AppConfig.TABLE_PRODUCT, "id", AppConfig.TABLE_BILL_HAS_PRODUCT, "product_id")
+                .build();
+        String whereClause = AppConfig.TABLE_BILL_HAS_PRODUCT + ".bill_id = ?";
 
-        PreparedStatement preparedStatement = connection.prepare(sql);
-        preparedStatement.setInt(1, id_bill);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = DatabaseService.getInstance().execQuery(table, null, whereClause, new Object[] {id_bill});
 
         return getList(resultSet);
     }

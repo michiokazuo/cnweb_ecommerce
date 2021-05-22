@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AppConfig {
 
-    public static UserDTO userInSysTem = null;
+    public static UserDTO userInSysTem = new UserDTO(1, "Thuyet", "NO", false);
 
     public static final String PATH_SAVE_FILES
             = "D:/Eclipse-workspace/TOMCAT/apache-tomcat-9.0.29/webapps";
@@ -23,7 +23,7 @@ public class AppConfig {
     public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     public static final String URL_DATABASE = "jdbc:mysql://localhost:3306/cnweb";
     public static final String USERNAME = "root"; // cần đổi username theo db của idol
-    public static final String PASSWORD = "20012000"; // cần đổi password theo db của idol
+    public static final String PASSWORD = ""; // cần đổi password theo db của idol
 
     public static final String TABLE_USER = "user";
     public static final String TABLE_PRODUCT = "product";
