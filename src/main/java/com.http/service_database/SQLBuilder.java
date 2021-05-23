@@ -1,5 +1,6 @@
 package com.http.service_database;
 
+import java.sql.Blob;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -79,7 +80,15 @@ public class SQLBuilder {
                 statement.setDate(i, (Date) param[i - 1]);
             } else if (param[i - 1] instanceof Boolean) {
                 statement.setBoolean(i, (Boolean) param[i - 1]);
-            } else {
+            } else if (param[i - 1] instanceof Double) {
+                statement.setDouble(i, (Double) param[i - 1]);
+            } else if (param[i - 1] instanceof Blob) {
+                statement.setBlob(i, (Blob) param[i - 1]);
+            } else if (param[i - 1] instanceof Float) {
+                statement.setFloat(i, (Float) param[i - 1]);
+            } else if (param[i - 1] instanceof Long) {
+                statement.setLong(i, (Long) param[i - 1]);
+            } else  {
                 statement.setString(i, param[i - 1].toString());
             }
         }
